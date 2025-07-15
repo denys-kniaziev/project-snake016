@@ -29,3 +29,21 @@ class NoteBook:
 
     def show_all(self):
         return "\n".join(str(note) for note in self.notes) if self.notes else "No notes available."
+    
+
+if __name__ == "__main__":
+    notebook = NoteBook()
+    note1 = Note("Shopping List", "Buy milk, eggs, and bread", ["shopping", "groceries"])
+    note2 = Note("Meeting Notes", "Discuss project updates", ["work", "meeting"])
+
+    notebook.add(note1)
+    notebook.add(note2)
+
+    print(notebook.show_all())
+
+    print(notebook.find("Shopping List"))
+    
+    print(notebook.remove("Meeting Notes"))
+    print(notebook.show_all())
+    
+    print(notebook.remove("Nonexistent Note"))
