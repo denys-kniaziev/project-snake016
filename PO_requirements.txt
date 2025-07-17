@@ -1,0 +1,137 @@
+Epic: Manage Address Book
+Description: As a user, I want to manage my contacts in an address book so that I can easily store, retrieve, update, and validate contact information, and track birthdays.
+
+User Stories for Epic:
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 1.1: Add a New Contact
+As a user, I want to be able to add a new contact to my address book, so I can store their name, address, phone, email, and birthday.
+
+Acceptance Criteria:
+The system shall provide a command line interface to add a new contact.
+The system shall allow me to input First Name, Last Name, Street Address, Phone Number, Email Address, and Birthday.
+The system shall perform validation on the entered Phone Number to ensure correctness.
+The system shall perform validation on the entered Email Address to ensure correctness.
+If the Phone Number or Email Address is incorrect, the system shall notify the user and prevent submission until corrected.
+Upon successful addition, the new contact shall be stored persistently and be visible in the contact list.
+The system shall provide a confirmation message upon successful addition.
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 1.2: View Upcoming Birthdays
+As a user, I want to view a list of contacts whose birthdays are within a specified number of days from the current date, so I can remember to congratulate them.
+
+Acceptance Criteria:
+The system shall allow me to specify a number of days (e.g., "show birthdays in the next 7 days").
+The system shall display a list of contacts whose birthdays fall within that specified period.
+The list shall include the contact name and their upcoming birthday.
+The calculation of the upcoming birthday should correctly handle year transitions.
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 1.3: Search for Contacts
+As a user, I want to be able to search for contacts by various criteria (e.g., name, phone number), so I can quickly find specific entries.
+
+Acceptance Criteria:
+The system shall provide a search function for contacts.
+I can enter a search query, and the system should find contacts matching that query in their Name, Address, Phone Number, or Email.
+The search should be case-insensitive.
+The system shall display all matching contacts.
+If no contacts match the search query, the system shall inform the user.
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 1.4: Edit an Existing Contact
+As a user, I want to be able to edit an existing contact information, so I can keep their details up-to-date.
+
+Acceptance Criteria:
+The system shall allow me to select an existing contact for editing.
+All fields of the contact (Name, Address, Phone, Email, Birthday) shall be editable.
+The system shall perform validation on the entered Phone Number and Email Address during editing.
+If the Phone Number or Email Address is incorrect, the system shall notify the user and prevent saving until corrected.
+Upon successful saving, the updated contact information shall be stored persistently and reflected in the contact list and details.
+The system shall provide a confirmation message upon successful update.
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 1.5: Delete a Contact
+As a user, I want to be able to delete a contact from my address book, so I can remove outdated or unwanted entries.
+
+Acceptance Criteria:
+The system shall provide an option to delete a selected contact.
+Before permanent deletion, the system shall prompt for confirmation (e.g., "Are you sure you want to delete this contact?").
+If confirmed, the contact shall be permanently removed from the address book and persistent storage.
+The system shall provide a success message upon deletion.
+
+-----------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------
+Epic: Manage Notebook
+Description: As a user, I want to manage my notes in a digital notebook so that I can easily record, organize, retrieve, and modify textual information with the help of tags.
+
+User Stories for Epic:
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 2.1: Create a New Note
+As a user, I want to be able to create a new note with textual information, so I can record thoughts and information.
+
+Acceptance Criteria:
+The system shall provide a command line interface to create a new note.
+I can enter free-form text as the content of the note.
+Upon saving, the new note shall be stored persistently and be accessible from the note list.
+The system shall provide a confirmation message upon successful creation.
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 2.2: Add Tags to a Note
+As a user, I want to be able to add tags (keywords) to my notes, so I can easily categorize and organize them.
+
+Acceptance Criteria:
+When creating or editing a note, the system shall allow me to associate one or more keywords (tags) with the note.
+Tags should be distinct and allow for multiple tags per note.
+Added tags shall be persistently stored with the note.
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 2.3: Search for Notes
+As a user, I want to be able to search for notes by their content or associated tags, so I can quickly find specific entries.
+
+Acceptance Criteria:
+The system shall provide a search function for notes.
+I can enter a search query, and the system should find notes where the query matches any part of the note content or any of its associated tags.
+The search should be case-insensitive.
+The system shall display all matching notes.
+If no notes match the search query, the system shall inform the user.
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 2.4: Sort Notes by Tags
+As a user, I want to be able to sort notes by their associated tags, so I can view groups of related notes.
+
+Acceptance Criteria:
+The system shall provide an option to sort the note list by one or more tags.
+When a tag is selected, only notes associated with that tag should be displayed.
+The sorting should reflect only notes containing the specified tags.
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 2.5: Edit an Existing Note
+As a user, I want to be able to edit an existing note content and its associated tags, so I can update my recorded information.
+
+Acceptance Criteria:
+The system shall allow me to select an existing note for editing.
+The full text content of the note shall be editable.
+I can add, remove, or modify existing tags associated with the note.
+Upon successful saving, the updated note content and tags shall be stored persistently and reflected in the note list and details.
+The system shall provide a confirmation message upon successful update.
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 2.6: Delete a Note
+As a user, I want to be able to delete a note, so I can remove old or irrelevant information.
+
+Acceptance Criteria:
+The system shall provide an option to delete a selected note.
+Before permanent deletion, the system shall prompt for confirmation (e.g., "Are you sure you want to delete this note?").
+If confirmed, the note shall be permanently removed from the notebook and persistent storage.
+The system shall provide a success message upon deletion.
+-----------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------
+Epic: Cross-Cutting / System-Level Requirements
+Description: These requirements are not tied to specific epics but are essential for the overall functionality and user experience of the Personal Assistant application.
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 3.1: Persistent Data Storage
+As a user, I want all my contacts and notes to be saved to disk, so I don''t lose my data upon application restart.
+
+Acceptance Criteria:
+All added, edited, and deleted contacts shall be persistently stored on the hard disk in the user folder.
+All created, edited, and deleted notes (including their tags) shall be persistently stored on the hard disk in the user folder.
+Upon restarting the Personal Assistant application, all previously saved contacts and notes shall be loaded and accessible.
+Data integrity should be maintained across restarts (e.g., no data corruption).
+-----------------------------------------------------------------------------------------------------------------------------
+User Story 3.2: Intelligent Command Recognition
+As a user, I want the assistant to understand my intent from typed text and suggest commands, so I can interact more intuitively.
+
+Acceptance Criteria:
+When I enter text, the assistant shall analyze it to identify potential user intentions (e.g., "add contact", "find note", "show birthdays").
+The assistant shall suggest the closest matching command(s) for me to execute.
+The suggestions should be relevant and helpful, even if the input isn''t a perfect command.
