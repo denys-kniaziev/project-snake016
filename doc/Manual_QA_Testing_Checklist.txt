@@ -1,0 +1,215 @@
+Manual QA Testing Checklist
+---------------------------------------------------------------------------------------------------------
+Epic 1: Manage Address Book
+---------------------------------------------------------------------------------------------------------
+User Story 1.1: Add a New Contact
+---------------------------------------------------------------------------------------------------------
+Test Case 1.1.1: Successful Contact Addition
+Steps: Execute command to add a new contact. Input valid First Name, Last Name, Street Address, Phone Number (e.g., +380501234567), Email Address (e.g., test@example.com), and Birthday (e.g., 1990-07-17).
+Expected Result: System displays confirmation message. New contact appears in contact list.
+---------------------------------------------------------------------------------------------------------
+Test Case 1.1.2: Phone Number Validation (Invalid Format)
+Steps: Attempt to add a contact with an invalid phone number (e.g., 123, abc, +38050).
+Expected Result: System notifies user of incorrect phone number and prevents submission.
+---------------------------------------------------------------------------------------------------------
+Test Case 1.1.3: Email Validation (Invalid Format)
+Steps: Attempt to add a contact with an invalid email address (e.g., invalid-email, user@, user@domain).
+Expected Result: System notifies user of incorrect email address and prevents submission.
+---------------------------------------------------------------------------------------------------------
+Test Case 1.1.4: Missing Required Fields (Implicit - Test with empty name/phone/email if validation allows)
+Steps: Attempt to add a contact leaving implicitly required fields (like First Name, Last Name, Phone, Email if applicable by system design) empty.
+Expected Result: System should prevent submission or prompt for missing information.
+---------------------------------------------------------------------------------------------------------
+User Story 1.2: View Upcoming Birthdays
+---------------------------------------------------------------------------------------------------------
+Test Case 1.2.1: View Birthdays within N Days (Positive Scenario)
+Pre-conditions: Add contacts with birthdays within 1, 7, and 30 days from today (e.g., if today is July 17, 2025, add contacts with birthdays on July 18, July 24, August 16). Add a contact with a birthday outside this range.
+Steps: Execute command to show birthdays in the next 7 days.
+Expected Result: Only contacts with birthdays within the next 7 days are displayed, including their names and birthdays.
+---------------------------------------------------------------------------------------------------------
+Test Case 1.2.2: View Birthdays Across Year End
+Pre-conditions: Add contacts with birthdays in late December and early January (e.g., Dec 28, Jan 5).
+Steps: Set system date to late December (e.g., Dec 27, 2025). Execute command to show birthdays in the next 10 days.
+Expected Result: Contacts with birthdays in late December and early January of the next year are correctly listed.
+---------------------------------------------------------------------------------------------------------
+Test Case 1.2.3: No Upcoming Birthdays
+Pre-conditions: Ensure no contacts have birthdays within the specified range.
+Steps: Execute command to show birthdays in the next 7 days.
+Expected Result: System indicates no upcoming birthdays or displays an empty list.
+---------------------------------------------------------------------------------------------------------
+User Story 1.3: Search for Contacts
+Test Case 1.3.1: Search by Full Name (Case-Insensitive)
+Pre-conditions: Add contacts like "John Doe", "Jane Smith".
+Steps: Search for "john doe", "JOHN DOE", "John Doe".
+Expected Result: "John Doe" contact is found in all cases.
+---------------------------------------------------------------------------------------------------------
+Test Case 1.3.2: Search by Partial Name
+Steps: Search for "john", "doe", "ja".
+Expected Result: All contacts containing the partial string in their name are displayed (e.g., "John Doe" for "john", "Jane Smith" for "ja").
+---------------------------------------------------------------------------------------------------------
+Test Case 1.3.3: Search by Phone Number
+Steps: Search for a full or partial phone number (e.g., 0501234567, 12345).
+Expected Result: Contacts with matching phone numbers are displayed.
+---------------------------------------------------------------------------------------------------------
+Test Case 1.3.4: Search by Email Address
+Steps: Search for a full or partial email address (e.g., test@example.com, example).
+Expected Result: Contacts with matching email addresses are displayed.
+---------------------------------------------------------------------------------------------------------
+Test Case 1.3.5: No Matching Contacts Found
+Steps: Search for a query that will not match any existing contact (e.g., "NonExistentName").
+Expected Result: System informs the user that no contacts were found.
+---------------------------------------------------------------------------------------------------------
+User Story 1.4: Edit an Existing Contact
+---------------------------------------------------------------------------------------------------------
+Test Case 1.4.1: Successful Edit of All Fields
+Pre-conditions: Have an existing contact.
+Steps: Select contact for editing. Change First Name, Last Name, Street Address, Phone Number (to a new valid one), Email Address (to a new valid one), and Birthday. Save changes.
+Expected Result: System displays confirmation message. Contact details are updated in the contact list and details view.
+---------------------------------------------------------------------------------------------------------
+Test Case 1.4.2: Phone Number Validation during Edit (Invalid Format)
+Pre-conditions: Have an existing contact.
+Steps: Select contact for editing. Change phone number to an invalid format. Attempt to save.
+Expected Result: System notifies user of incorrect phone number and prevents saving. Original phone number remains unchanged until valid input.
+---------------------------------------------------------------------------------------------------------
+Test Case 1.4.3: Email Validation during Edit (Invalid Format)
+Pre-conditions: Have an existing contact.
+Steps: Select contact for editing. Change email address to an invalid format. Attempt to save.
+Expected Result: System notifies user of incorrect email address and prevents saving. Original email address remains unchanged until valid input.
+---------------------------------------------------------------------------------------------------------
+User Story 1.5: Delete a Contact
+---------------------------------------------------------------------------------------------------------
+Test Case 1.5.1: Successful Contact Deletion
+Pre-conditions: Have an existing contact.
+Steps: Select a contact for deletion. Confirm the deletion when prompted.
+Expected Result: System displays a success message. The contact is no longer present in the contact list.
+---------------------------------------------------------------------------------------------------------
+Test Case 1.5.2: Cancel Contact Deletion
+Pre-conditions: Have an existing contact.
+Steps: Select a contact for deletion. Choose to cancel the deletion when prompted.
+Expected Result: The contact remains in the contact list. System does not display a deletion success message.
+---------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
+Epic 2: Manage Notebook
+---------------------------------------------------------------------------------------------------------
+User Story 2.1: Create a New Note
+Test Case 2.1.1: Successful Note Creation
+Steps: Execute command to create a new note. Enter free-form text as content. Save the note.
+Expected Result: System displays a confirmation message. The new note appears in the note list with its content.
+---------------------------------------------------------------------------------------------------------
+Test Case 2.1.2: Empty Note Content (if allowed)
+Steps: Attempt to create a note with empty content.
+Expected Result: System allows creation or prompts for content based on design. (If a note requires content, this should fail; otherwise, an empty note should be created).
+---------------------------------------------------------------------------------------------------------
+User Story 2.2: Add Tags to a Note
+---------------------------------------------------------------------------------------------------------
+Test Case 2.2.1: Add Single Tag to New Note
+Steps: Create a new note and add a single tag (e.g., "Work").
+Expected Result: Note is created, and the tag is associated and visible with the note.
+---------------------------------------------------------------------------------------------------------
+Test Case 2.2.2: Add Multiple Tags to New Note
+Steps: Create a new note and add multiple distinct tags (e.g., "Personal", "Ideas", "Shopping").
+Expected Result: Note is created, and all specified tags are associated and visible.
+---------------------------------------------------------------------------------------------------------
+Test Case 2.2.3: Add Tags to Existing Note
+Pre-conditions: Have an existing note without tags.
+Steps: Edit the existing note and add one or more tags. Save changes.
+Expected Result: Tags are successfully added to the note.
+---------------------------------------------------------------------------------------------------------
+User Story 2.3: Search for Notes
+---------------------------------------------------------------------------------------------------------
+Test Case 2.3.1: Search by Note Content (Case-Insensitive)
+Pre-conditions: Have notes with varying content (e.g., "Meeting Minutes", "Grocery List").
+Steps: Search for "meeting", "Grocery List", "list".
+Expected Result: All notes containing the search query in their content are displayed, regardless of case.
+---------------------------------------------------------------------------------------------------------
+Test Case 2.3.2: Search by Single Tag (Case-Insensitive)
+Pre-conditions: Have notes with tags (e.g., Note A with tag "Work", Note B with tag "Personal").
+Steps: Search for "work", "WORK", "personal".
+Expected Result: Only notes associated with the specified tag are displayed.
+---------------------------------------------------------------------------------------------------------
+Test Case 2.3.4: No Matching Notes Found
+Steps: Search for a query that will not match any existing note content or tags.
+Expected Result: System informs the user that no notes were found.
+---------------------------------------------------------------------------------------------------------
+User Story 2.4: Sort Notes by Tags
+---------------------------------------------------------------------------------------------------------
+Test Case 2.4.1: Sort by Single Tag
+Pre-conditions: Have multiple notes, some with common tags, some without.
+Steps: Apply sort for a specific tag (e.g., "Work").
+Expected Result: Only notes containing the "Work" tag are displayed in the list. Other notes are hidden.
+---------------------------------------------------------------------------------------------------------
+Test Case 2.4.3: No Notes for Selected Tag
+Steps: Apply sort for a tag that has no associated notes.
+Expected Result: System displays an empty list or a message indicating no notes for that tag.
+---------------------------------------------------------------------------------------------------------
+User Story 2.5: Edit an Existing Note
+---------------------------------------------------------------------------------------------------------
+Test Case 2.5.1: Successful Edit of Note Content
+Pre-conditions: Have an existing note.
+Steps: Select note for editing. Change its text content significantly. Save changes.
+Expected Result: System displays a confirmation message. Note content is updated in the note list/details.
+---------------------------------------------------------------------------------------------------------
+Test Case 2.5.2: Add Tags during Edit
+Pre-conditions: Have an existing note without a specific tag.
+Steps: Edit the note and add a new tag. Save changes.
+Expected Result: The new tag is successfully associated with the note.
+---------------------------------------------------------------------------------------------------------
+Test Case 2.5.3: Remove Tags during Edit
+Pre-conditions: Have an existing note with multiple tags.
+Steps: Edit the note and remove one or more existing tags. Save changes.
+Expected Result: The removed tags are no longer associated with the note.
+---------------------------------------------------------------------------------------------------------
+Test Case 2.5.4: Modify Existing Tags during Edit
+Pre-conditions: Have an existing note with a tag.
+Steps: Edit the note and change the spelling or value of an existing tag. Save changes.
+Expected Result: The tag is updated with the new value.
+---------------------------------------------------------------------------------------------------------
+User Story 2.6: Delete a Note
+---------------------------------------------------------------------------------------------------------
+Test Case 2.6.1: Successful Note Deletion
+Pre-conditions: Have an existing note.
+Steps: Select a note for deletion. Confirm the deletion when prompted.
+Expected Result: System displays a success message. The note is no longer present in the note list.
+---------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
+Epic 3: Cross-Cutting / System-Level Requirements
+---------------------------------------------------------------------------------------------------------
+User Story 3.1: Persistent Data Storage
+---------------------------------------------------------------------------------------------------------
+Test Case 3.1.1: Contacts Persistence Across Restart
+Steps: Add 2-3 new contacts. Exit the Personal Assistant application. Restart the application.
+Expected Result: All previously added contacts are present in the contact list upon restart.
+---------------------------------------------------------------------------------------------------------
+Test Case 3.1.2: Notes Persistence Across Restart
+Steps: Create 2-3 new notes with tags. Exit the Personal Assistant application. Restart the application.
+Expected Result: All previously created notes and their associated tags are present in the note list upon restart.
+---------------------------------------------------------------------------------------------------------
+Test Case 3.1.3: Edited Data Persistence Across Restart
+Steps: Edit an existing contact and an existing note. Exit the application. Restart the application.
+Expected Result: The edits to both the contact and the note are saved and reflected upon restart.
+---------------------------------------------------------------------------------------------------------
+Test Case 3.1.4: Deleted Data Persistence Across Restart
+Steps: Delete a contact and a note. Exit the application. Restart the application.
+Expected Result: The deleted contact and note are not present upon restart.
+---------------------------------------------------------------------------------------------------------
+User Story 3.2: Intelligent Command Recognition
+---------------------------------------------------------------------------------------------------------
+Test Case 3.2.1: Suggest "Add Contact" Command
+Steps: Type variations of "add new person", "create contact", "new friend".
+Expected Result: System suggests the "add contact" command.
+---------------------------------------------------------------------------------------------------------
+Test Case 3.2.2: Suggest "Find Note" Command
+Steps: Type variations of "search notes", "find memo", "where is my note".
+Expected Result: System suggests the "search note" command.
+---------------------------------------------------------------------------------------------------------
+Test Case 3.2.3: Suggest "Show Birthdays" Command
+Steps: Type variations of "birthdays", "upcoming bdays", "who has birthday soon".
+Expected Result: System suggests the "view upcoming birthdays" command.
+---------------------------------------------------------------------------------------------------------
+Test Case 3.2.4: Partial Command Matching
+Steps: Type incomplete commands like "add con", "find no".
+Expected Result: System still attempts to suggest the closest matching command.
+---------------------------------------------------------------------------------------------------------
+Test Case 3.2.5: No Relevant Suggestion
+Steps: Type completely irrelevant text (e.g., "hello world", "weather today").
+Expected Result: System either provides no suggestions or indicates it doesn't understand.
