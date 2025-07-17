@@ -101,6 +101,28 @@ def change_contact(args: list[str], book: AddressBook) -> str:
     record.edit_phone(old_phone, new_phone)
     return "Contact updated."
 
+@input_error
+def edit_fields(args: list[str], book: AddressBook):
+    """
+    Change the named fields of an existing contact.
+    
+    Args:
+        args (list[str]): List containing name, old phone, and new phone.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Status message.
+    """
+    if len(args) < 3:
+        raise ValueError("Please provide name, old phone, and new phone. Usage: change <name> <old_phone> <new_phone>")
+    
+    name, field_name, new_value = args
+    record = book.find(name)
+    if record is None:
+        raise KeyError(f"Contact '{name}' not found")
+    
+    record.edit_field(field_name, new_value)
+    return "Contact updated."
 
 @input_error
 def show_phone(args: list[str], book: AddressBook) -> str:
@@ -174,6 +196,51 @@ def add_birthday(args: list[str], book: AddressBook) -> str:
     record.add_birthday(birthday)
     return f"Birthday added for {name}."
 
+@input_error
+def add_address(args: list[str], book: AddressBook) -> str:
+    """
+    Add address to a contact.
+    
+    Args:
+        args (list[str]): List containing name and address.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Status message.
+    """
+    if len(args) < 2:
+        raise ValueError("Please provide both name and address.")
+    
+    name, address = args
+    record = book.find(name)
+    if record is None:
+        raise KeyError(f"Contact '{name}' not found")
+    
+    record.add_address(address)
+    return f"Address added for {name}."
+
+@input_error
+def add_email(args: list[str], book: AddressBook) -> str:
+    """
+    Add email to a contact.
+    
+    Args:
+        args (list[str]): List containing name and email.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Status message.
+    """
+    if len(args) < 2:
+        raise ValueError("Please provide both name and email.")
+    
+    name, email = args
+    record = book.find(name)
+    if record is None:
+        raise KeyError(f"Contact '{name}' not found")
+    
+    record.add_email(email)
+    return f"Email added for {email}."
 
 @input_error
 def show_birthday(args: list[str], book: AddressBook) -> str:
@@ -202,21 +269,21 @@ def show_birthday(args: list[str], book: AddressBook) -> str:
 
 
 @input_error
-def birthdays(args: list[str], book: AddressBook) -> str:
+def birthdays(number_days:int, book: AddressBook) -> str:
     """
-    Show upcoming birthdays for the next week.
+    Show upcoming birthdays for the next number_days days
     
     Args:
-        args (list[str]): Should be empty.
+        number_days: Number days
         book (AddressBook): The address book instance.
         
     Returns:
         str: Formatted string of upcoming birthdays.
     """
-    upcoming = book.get_upcoming_birthdays()
+    upcoming = book.get_upcoming_birthdays(number_days)
     
     if not upcoming:
-        return "No upcoming birthdays in the next week."
+        return "No upcoming birthdays in the {number_days} days."
     
     result = ["Upcoming birthdays:"]
     for birthday_info in upcoming:
@@ -263,8 +330,11 @@ def show_help() -> str:
         phone <name>                            - Show contact's phone numbers
         all                                     - Show all contacts
         add-birthday <name> <DD.MM.YYYY>        - Add birthday to contact
+        add-address <name> <address>            - Add address to contact
+        add-email <name> <email>              - Add email to contact
         show-birthday <name>                    - Show contact's birthday
-        birthdays                               - Show upcoming birthdays this week
+        birthdays <number of days>              - Show contacts whose birthday is a specified number of days away from the current date
+        edit-fields <name> <name field> <new_value> - Edit named field
         delete <name>                           - Delete a contact
         help                                    - Show this help message
         exit/close                              - Exit the program
@@ -274,8 +344,11 @@ def show_help() -> str:
         change John 1234567890 0987654321
         phone John
         add-birthday John 15.03.1990
+        add-address John USA
+        add-email John 124@gmail.com
         show-birthday John
-        birthdays
-        delete John
+        birthdays 5
+        edit-fields John birthday 01.05.1997
+        delete John 
         all""")
     return help_text.strip()

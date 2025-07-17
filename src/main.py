@@ -1,9 +1,10 @@
 import pickle
 from pathlib import Path
-from commands import (
+from commands import ( 
     parse_input, show_help, add_contact, change_contact, 
-    show_phone, show_all, add_birthday, show_birthday, birthdays, delete_contact
-)
+    show_phone, show_all, add_birthday, show_birthday, birthdays, delete_contact, add_address, add_email, 
+    edit_fields)
+
 from address_book import AddressBook
 
 
@@ -87,6 +88,18 @@ def main():
 
                 case "add-birthday":
                     print(add_birthday(args, book))
+                    save_data(book)
+
+                case "add-address":
+                    print(add_address(args, book))
+                    save_data(book)
+
+                case "add-email":
+                    print(add_email(args, book))
+                    save_data(book)
+
+                case "edit-fields":
+                    print(edit_fields(args, book))
                     save_data(book)
 
                 case "show-birthday":
