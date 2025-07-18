@@ -1,5 +1,6 @@
 from textwrap import dedent
 from address_book import AddressBook, Record
+from note_book import NoteBook, Note
 
 
 def input_error(func):
@@ -31,7 +32,6 @@ def input_error(func):
     
     return inner
 
-
 def parse_input(user_input: str) -> tuple[str, list[str]]:
     """
     Parse user input into command and arguments.
@@ -49,7 +49,6 @@ def parse_input(user_input: str) -> tuple[str, list[str]]:
     cmd, *args = user_input.split()
     cmd = cmd.strip().lower()
     return cmd, args
-
 
 @input_error
 def add_contact(args: list[str], book: AddressBook) -> str:
@@ -76,7 +75,6 @@ def add_contact(args: list[str], book: AddressBook) -> str:
     if phone:
         record.add_phone(phone)
     return message
-
 
 @input_error
 def change_contact(args: list[str], book: AddressBook) -> str:
@@ -150,7 +148,6 @@ def show_phone(args: list[str], book: AddressBook) -> str:
     phones = ", ".join(phone.value for phone in record.phones)
     return f"{name}: {phones}"
 
-
 @input_error
 def show_all(args: list[str], book: AddressBook) -> str:
     """
@@ -171,7 +168,6 @@ def show_all(args: list[str], book: AddressBook) -> str:
         result.append(str(record))
     
     return "\n".join(result)
-
 
 @input_error
 def add_birthday(args: list[str], book: AddressBook) -> str:
@@ -267,7 +263,6 @@ def show_birthday(args: list[str], book: AddressBook) -> str:
     
     return f"{name}'s birthday: {record.birthday}"
 
-
 @input_error
 def birthdays(number_days:int, book: AddressBook) -> str:
     """
@@ -291,7 +286,6 @@ def birthdays(number_days:int, book: AddressBook) -> str:
     
     return "\n".join(result)
 
-
 @input_error
 def delete_contact(args: list[str], book: AddressBook) -> str:
     """
@@ -314,7 +308,6 @@ def delete_contact(args: list[str], book: AddressBook) -> str:
     except KeyError:
         raise KeyError(f"Contact '{name}' not found")
 
-
 def show_help() -> str:
     """
     Show help information with all available commands and their usage.
@@ -323,22 +316,35 @@ def show_help() -> str:
         str: Formatted help text with all commands
     """
     help_text = dedent("""
-        Available commands:
+        Available general commands:
         hello                                   - Greet the bot
+        help                                    - Show this help message
+        exit/close                              - Exit the program                       
+        
+        --- Address Book Commands ---
         add <name> <phone>                      - Add a new contact or phone to existing contact
         change <name> <old_phone> <new_phone>   - Change existing contact's phone number
         phone <name>                            - Show contact's phone numbers
         all                                     - Show all contacts
         add-birthday <name> <DD.MM.YYYY>        - Add birthday to contact
         add-address <name> <address>            - Add address to contact
-        add-email <name> <email>              - Add email to contact
+        add-email <name> <email>                - Add email to contact
         show-birthday <name>                    - Show contact's birthday
         birthdays <number of days>              - Show contacts whose birthday is a specified number of days away from the current date
         edit-fields <name> <name field> <new_value> - Edit named field
         delete <name>                           - Delete a contact
-        help                                    - Show this help message
-        exit/close                              - Exit the program
 
+        --- Note Book Commands ---
+        add-note <title> <content> [tags]       - Add a new note
+        remove-note <title>                     - Remove a note by title
+        show-all-notes                          - Show all notes
+        search-notes <query>                    - Search notes by title or content
+        edit-note <title> [new_title] [new_content] [new_tags] - Edit an existing note
+        search-notes-by-tag <tag>               - Search notes by a specific tag
+        sort-notes-by-tag                       - Sort notes by their tags
+        add-tag-to-note <title> <tag>           - Add a tag to an existing note
+        remove-tag-from-note <title> <tag>      - Remove a tag from an existing note
+        
         Examples:
         add John 1234567890
         change John 1234567890 0987654321
@@ -352,3 +358,189 @@ def show_help() -> str:
         delete John 
         all""")
     return help_text.strip()
+
+@input_error
+def add_note(args: list[str], notebook: NoteBook) -> str:
+    """
+        Add a new note to the note book.
+        
+        Args:
+            args (list[str]): List containing title and content.
+            notebook (NoteBook): The note book instance.
+
+        Returns:
+            str: Status message.
+        """    
+    if len(args) < 2:
+        raise ValueError("Please provide a title and content for the note.")
+    title, content = args[0], " ".join(args[1:])
+    tags = [tag.strip() for tag in args[2:]] if len(args) > 2 else []
+    note = Note(title, content, tags)
+    return notebook.add(note)
+
+@input_error
+def remove_note(args: list[str], notebook: NoteBook) -> str:
+    """
+        Remove a note from the note book by title.
+        
+        Args:
+            args (list[str]): List containing the title of the note to remove.
+            notebook (NoteBook): The note book instance.
+
+        Returns:
+            str: Status message.
+        """
+    if len(args) < 1:
+        raise ValueError("Please provide a title of the note to remove.")
+    title = args[0]
+    return notebook.remove(title)
+
+@input_error
+def show_all_notes(args: list[str], notebook: NoteBook) -> str:
+    """
+        Show all notes in the note book.
+        
+        Args:
+            args (list[str]): Should be empty.
+            notebook (NoteBook): The note book instance.
+
+        Returns:
+            str: Formatted string of all notes or message if no notes.
+        """
+    return notebook.show_all() if not args else "No arguments expected for this command."
+
+@input_error
+def search_notes(args: list[str], notebook: NoteBook) -> str:
+    """
+        Search for notes containing a specific query in their title or content.
+        
+        Args:
+            args (list[str]): List containing the search query.
+            notebook (NoteBook): The note book instance.
+
+        Returns:
+            list[Note]: List of notes matching the search query.
+        """
+    if len(args) < 1:
+        raise ValueError("Please provide a search query.")
+    query = " ".join(args)
+    result = notebook.search(query)
+
+    if result:
+        message_parts = [f"✅ Found {len(result)} note(s) for note '{query}':"]
+        for i, note in enumerate(result):
+            message_parts.append(
+                f"  {i+1}. Title: {note.title}, Content: {note.content}, Tags: {', '.join(note.tags)}"
+            )
+        return "\n".join(message_parts)
+    else:
+        return f"❌ No notes found matching '{query}'."
+
+@input_error
+def edit_note(args: list[str], notebook: NoteBook) -> str:
+    """
+        Edit an existing note in the note book.
+        
+        Args:
+            args (list[str]): List containing title, new title, new content, and new tags.
+            notebook (NoteBook): The note book instance.
+
+        Returns:
+            str: Status message.
+        """
+    if len(args) < 1:
+        raise ValueError("Please provide the title of the note to edit.")
+    
+    title = args[0]
+    new_title = args[1] if len(args) > 1 else None
+    new_content = " ".join(args[2:]) if len(args) > 2 else None
+    new_tags = args[3:] if len(args) > 3 else None
+
+    return notebook.edit(title, new_title, new_content, new_tags)
+
+@input_error
+def search_notes_by_tag(args: list[str], notebook: NoteBook) -> str:
+    """
+        Search for notes by a specific tag.
+        
+        Args:
+            args (list[str]): List containing the tag to search for.
+            notebook (NoteBook): The note book instance.
+
+        Returns:
+            list[Note]: List of notes matching the tag.
+        """
+    if len(args) < 1:
+        raise ValueError("Please provide a tag to search for.")
+    tag = args[0]
+    result = notebook.search_by_tag(tag)
+
+    if result:
+        message_parts = [f"✅ Found {len(result)} note(s) for tag '{tag}':"]
+        for i, note in enumerate(result):
+            message_parts.append(
+                f"  {i+1}. Title: {note.title}, Content: {note.content}, Tags: {', '.join(note.tags)}"
+            )
+        return "\n".join(message_parts)
+    else:
+        return f"❌ No notes found matching for tag '{tag}'."
+
+@input_error
+def sort_notes_by_tag(args: list[str], notebook: NoteBook) -> list[Note]:
+    """
+        Sort notes by their tags.
+        
+        Args:
+            args (list[str]): Should be empty.
+            notebook (NoteBook): The note book instance.
+
+        Returns:
+            list[Note]: Sorted list of notes by tags.
+        """
+    if args:
+        raise ValueError("No arguments expected for this command.")
+    return notebook.sort_by_tag()
+
+@input_error
+def add_tag_to_note(args: list[str], notebook: NoteBook) -> str:
+    """
+        Add a tag to an existing note.
+        
+        Args:
+            args (list[str]): List containing title and tag.
+            notebook (NoteBook): The note book instance.
+
+        Returns:
+            str: Status message.
+        """
+    if len(args) < 2:
+        raise ValueError("Please provide a title and a tag to add.")
+    
+    title, tag = args[0], args[1]
+    note = notebook.find(title)
+    if note is None:
+        raise KeyError(f"Note '{title}' not found")
+        
+    return note.add_tag(tag)
+
+@input_error
+def remove_tag_from_note(args: list[str], notebook: NoteBook) -> str:
+    """
+        Remove a tag from an existing note.
+        
+        Args:
+            args (list[str]): List containing title and tag.
+            notebook (NoteBook): The note book instance.
+
+        Returns:
+            str: Status message.
+        """
+    if len(args) < 2:
+        raise ValueError("Please provide a title and a tag to remove.")
+    
+    title, tag = args[0], args[1]
+    note = notebook.find(title)
+    if note is None:
+        raise KeyError(f"Note '{title}' not found")
+    
+    return note.remove_tag(tag)

@@ -4,24 +4,33 @@ class Note:
         self.content = content
         self.tags = tags if tags is not None else []
 
+    # method to represent the note as a string
     def __str__(self):
         return f"Title: {self.title}\nContent: {self.content}\nTags: {', '.join(self.tags)}"
     
+    # method to add a tag to the note
     def add_tag(self, tag):
         if tag not in self.tags:
             self.tags.append(tag)
+        return f"Tag '{tag}' added to note '{self.title}'."
 
+    # method to remove a tag from the note
     def remove_tag(self, tag):
         if tag in self.tags:
             self.tags.remove(tag)
+            return f"Tag '{tag}' removed from note '{self.title}'."
+        return f"Tag '{tag}' not found in note '{self.title}'."
     
 class NoteBook:
     def __init__(self):
         self.notes = []
 
+    # method to add a note to the notebook
     def add(self, note: Note):
         self.notes.append(note)
+        return f"Note added: {note.title}"
 
+    # method to remove a note by title
     def remove(self, title: str):
         for note in self.notes:
             if note.title == title:
@@ -29,18 +38,22 @@ class NoteBook:
                 return f"Note '{title}' removed."
         return f"Note '{title}' not found."
 
-    def find(self, title: str):
+    # method to find a note by title, used for inner purposes by other methods
+    def find(self, title: str): 
         for note in self.notes:
             if note.title == title:
                 return note
         return None
 
+    # method to show all notes in the notebook
     def show_all(self):
         return "\n".join(str(note) for note in self.notes) if self.notes else "No notes available."
     
+    # method to search notes by a query in title or content
     def search(self, query: str):
         return [note for note in self.notes if query.lower() in note.title.lower() or query.lower() in note.content.lower()]
 
+    # method to edit an existing note
     def edit(self, title: str, new_title=None, new_content=None, new_tags=None):
         note = self.find(title)
         if note:
@@ -53,9 +66,11 @@ class NoteBook:
             return f"Note '{title}' updated."
         return f"Note '{title}' not found."
 
+    # method to search notes by a tag
     def search_by_tag(self, tag: str):
         return [note for note in self.notes if tag in note.tags]
 
+    # method to sort notes by their tags
     def sort_by_tag(self):
         return sorted(self.notes, key=lambda note: ','.join(sorted(note.tags)))
         
@@ -76,7 +91,12 @@ if __name__ == "__main__":
     print(notebook.show_all())
     
     print('   Result of note search:')
-    print(notebook.search("project")[0] if notebook.search("project") else "No notes found with that query")
+    result = notebook.search("project")
+    if result:
+        for note in result:
+            print(note)
+    else:
+        print("No notes found with that query.")
 
     print('   Result of tag search:')
     tag = "work"
