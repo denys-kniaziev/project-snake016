@@ -63,7 +63,7 @@ def add_contact(args: list[str], book: AddressBook) -> str:
         str: Status message.
     """
     if len(args) < 2:
-        raise ValueError("Please provide both name and phone number. Usage: add <name> <phone>")
+        raise ValueError("Please provide both name and phone number. Usage: add-contact <name> <phone>")
     
     name, phone, *_ = args
     record = book.find(name)
@@ -75,29 +75,6 @@ def add_contact(args: list[str], book: AddressBook) -> str:
     if phone:
         record.add_phone(phone)
     return message
-
-@input_error
-def change_contact(args: list[str], book: AddressBook) -> str:
-    """
-    Change the phone number of an existing contact.
-    
-    Args:
-        args (list[str]): List containing name, old phone, and new phone.
-        book (AddressBook): The address book instance.
-        
-    Returns:
-        str: Status message.
-    """
-    if len(args) < 3:
-        raise ValueError("Please provide name, old phone, and new phone. Usage: change <name> <old_phone> <new_phone>")
-    
-    name, old_phone, new_phone = args
-    record = book.find(name)
-    if record is None:
-        raise KeyError(f"Contact '{name}' not found")
-    
-    record.edit_phone(old_phone, new_phone)
-    return "Contact updated."
 
 @input_error
 def edit_fields(args: list[str], book: AddressBook):
@@ -112,7 +89,7 @@ def edit_fields(args: list[str], book: AddressBook):
         str: Status message.
     """
     if len(args) < 3:
-        raise ValueError("Please provide name, old phone, and new phone. Usage: change <name> <old_phone> <new_phone>")
+        raise ValueError("Please provide name, old phone, and new phone. Usage: change-contact <name> <old_phone> <new_phone>")
     
     name, field_name, new_value = args
     record = book.find(name)
@@ -121,32 +98,6 @@ def edit_fields(args: list[str], book: AddressBook):
     
     record.edit_field(field_name, new_value)
     return "Contact updated."
-
-@input_error
-def show_phone(args: list[str], book: AddressBook) -> str:
-    """
-    Show the phone numbers of a specific contact.
-    
-    Args:
-        args (list[str]): List containing the name of the contact.
-        book (AddressBook): The address book instance.
-        
-    Returns:
-        str: The phone numbers or an error message.
-    """
-    if len(args) < 1:
-        raise ValueError("Please provide a contact name. Usage: phone <name>")
-    
-    name = args[0]
-    record = book.find(name)
-    if record is None:
-        raise KeyError(f"Contact '{name}' not found")
-    
-    if not record.phones:
-        return f"No phone numbers found for {name}"
-    
-    phones = ", ".join(phone.value for phone in record.phones)
-    return f"{name}: {phones}"
 
 @input_error
 def show_all(args: list[str], book: AddressBook) -> str:
@@ -353,7 +304,7 @@ def delete_contact(args: list[str], book: AddressBook) -> str:
         str: Status message.
     """
     if len(args) < 1:
-        raise ValueError("Please provide a contact name. Usage: delete <name>")
+        raise ValueError("Please provide a contact name. Usage: delete-contact <name>")
     
     name = args[0]
     try:
@@ -371,23 +322,20 @@ def show_help() -> str:
     """
     help_text = dedent("""
         Available general commands:
-        hello                                   - Greet the bot
         help                                    - Show this help message
         exit/close                              - Exit the program                       
         
         --- Address Book Commands ---
-        add <name> <phone>                      - Add a new contact or phone to existing contact
-        change <name> <old_phone> <new_phone>   - Change existing contact's phone number
-        phone <name>                            - Show contact's phone numbers
-        all                                     - Show all contacts
-        search <query>                          - Search contacts by name, phone, email, or address
+        add-contact <name> <phone>              - Add a new contact or phone to existing contact
+        show-all-contacts                       - Show all contacts
+        search-contacts <query>                 - Search contacts by name, phone, email, or address
         add-birthday <name> <DD.MM.YYYY>        - Add birthday to contact
         add-address <name> <address>            - Add address to contact
         add-email <name> <email>                - Add email to contact
         show-birthday <name>                    - Show contact's birthday
         birthdays <number of days>              - Show contacts whose birthday is a specified number of days away from the current date
-        edit-fields <name> <name field> <new_value> - Edit named field
-        delete <name>                           - Delete a contact
+        edit-fields <name> <field> <new_value>  - Edit named field
+        delete-contact <name>                   - Delete a contact
 
         --- Note Book Commands ---
         add-note <title> <content> [tags]       - Add a new note

@@ -4,7 +4,7 @@ from address_book import AddressBook
 from note_book import NoteBook
 
 
-def save_addressbook(book: AddressBook, filename: str = "addressbook.pkl") -> None:
+def save_addressbook(book: AddressBook, filename: str = "addressbook.pkl", silentmode: bool = False) -> None:
     """
     Save the address book to a file using pickle serialization.
     
@@ -15,7 +15,8 @@ def save_addressbook(book: AddressBook, filename: str = "addressbook.pkl") -> No
     try:
         with open(filename, "wb") as f:
             pickle.dump(book, f)
-        print(f"Address book saved to {filename}")
+        if not silentmode:
+            print(f"Address book saved to {filename}")
     except Exception as e:
         print(f"Error saving address book: {e}")
 
