@@ -170,6 +170,49 @@ def show_all(args: list[str], book: AddressBook) -> str:
     return "\n".join(result)
 
 @input_error
+def search_contacts(args: list[str], book: AddressBook) -> str:
+    """
+    Search for contacts by name, phone, email, or address.
+    
+    Args:
+        args (list[str]): List containing the search query.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Formatted string of matching contacts.
+    """
+    if len(args) < 1:
+        raise ValueError("Please provide a search query.")
+    
+    query = " ".join(args).lower()
+    results = []
+    
+    for record in book.data.values():
+        # Search in name
+        if query in record.name.value.lower():
+            results.append(record)
+            continue
+            
+        # Search in phones
+        for phone in record.phones:
+            if query in phone.value:
+                results.append(record)
+                break
+        else:
+            # Search in email
+            if record.email and query in record.email.value.lower():
+                results.append(record)
+            # Search in address
+            elif record.address and query in record.address.value.lower():
+                results.append(record)
+    
+    if results:
+        result_strings = [str(record) for record in results]
+        return f"Found {len(results)} contact(s):\n" + "\n".join(result_strings)
+    else:
+        return f"No contacts found matching '{' '.join(args)}'."
+
+@input_error
 def add_birthday(args: list[str], book: AddressBook) -> str:
     """
     Add birthday to a contact.
@@ -264,21 +307,32 @@ def show_birthday(args: list[str], book: AddressBook) -> str:
     return f"{name}'s birthday: {record.birthday}"
 
 @input_error
-def birthdays(number_days:int, book: AddressBook) -> str:
+def birthdays(args: list[str], book: AddressBook) -> str:
     """
     Show upcoming birthdays for the next number_days days
     
     Args:
-        number_days: Number days
+        args (list[str]): List containing the number of days.
         book (AddressBook): The address book instance.
         
     Returns:
         str: Formatted string of upcoming birthdays.
     """
-    upcoming = book.get_upcoming_birthdays(number_days)
+    if len(args) < 1:
+        raise ValueError("Please provide the number of days.")
+    
+    try:
+        number_days = int(args[0])
+    except ValueError:
+        raise ValueError("Number of days must be a valid integer.")
+    
+    if number_days < 0:
+        raise ValueError("Number of days must be positive.")
+    
+    upcoming = book.get_upcoming_birthdays(args)
     
     if not upcoming:
-        return "No upcoming birthdays in the {number_days} days."
+        return f"No upcoming birthdays in the next {number_days} days."
     
     result = ["Upcoming birthdays:"]
     for birthday_info in upcoming:
@@ -326,6 +380,7 @@ def show_help() -> str:
         change <name> <old_phone> <new_phone>   - Change existing contact's phone number
         phone <name>                            - Show contact's phone numbers
         all                                     - Show all contacts
+        search <query>                          - Search contacts by name, phone, email, or address
         add-birthday <name> <DD.MM.YYYY>        - Add birthday to contact
         add-address <name> <address>            - Add address to contact
         add-email <name> <email>                - Add email to contact
@@ -343,20 +398,7 @@ def show_help() -> str:
         search-notes-by-tag <tag>               - Search notes by a specific tag
         sort-notes-by-tag                       - Sort notes by their tags
         add-tag-to-note <title> <tag>           - Add a tag to an existing note
-        remove-tag-from-note <title> <tag>      - Remove a tag from an existing note
-        
-        Examples:
-        add John 1234567890
-        change John 1234567890 0987654321
-        phone John
-        add-birthday John 15.03.1990
-        add-address John USA
-        add-email John 124@gmail.com
-        show-birthday John
-        birthdays 5
-        edit-fields John birthday 01.05.1997
-        delete John 
-        all""")
+        remove-tag-from-note <title> <tag>      - Remove a tag from an existing note""")
     return help_text.strip()
 
 @input_error
