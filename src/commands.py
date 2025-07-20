@@ -415,7 +415,7 @@ def birthdays(args: list[str], book: AddressBook) -> str:
     if number_days < 0:
         raise ValueError("Number of days must be positive.")
     
-    upcoming = book.get_upcoming_birthdays(args)
+    upcoming = book.get_upcoming_birthdays(number_days)
     
     if not upcoming:
         return f"No upcoming birthdays in the next {number_days} days."

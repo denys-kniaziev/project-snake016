@@ -91,7 +91,7 @@ class UIFormatter:
                 address
             ])
         
-        return f"{Colors.BOLD}{table}{Colors.RESET}"
+        return f"{Colors.INFO}{table}{Colors.RESET}"
     
     @staticmethod
     def format_single_contact(record: Record) -> str:
@@ -144,7 +144,7 @@ class UIFormatter:
                 tags
             ])
         
-        return f"{Colors.BOLD}{table}{Colors.RESET}"
+        return f"{Colors.INFO}{table}{Colors.RESET}"
     
     @staticmethod
     def format_single_note(note: Note) -> str:
@@ -186,7 +186,7 @@ class UIFormatter:
                 birthday["congratulation_date"]
             ])
         
-        return f"{Colors.SUCCESS}🎂 Upcoming Birthdays:\n{Colors.BOLD}{table}{Colors.RESET}"
+        return f"{Colors.SUCCESS}🎂 Upcoming Birthdays:\n{Colors.INFO}{table}{Colors.RESET}"
     
     @staticmethod
     def format_help_table(commands_by_category: Dict[str, List]) -> str:
@@ -210,7 +210,7 @@ class UIFormatter:
             for cmd in commands:
                 table.add_row([cmd.usage, cmd.description])
             
-            output.append(str(table))
+            output.append(f"{Colors.INFO}{str(table)}{Colors.RESET}")
         
         return "\n".join(output)
     
