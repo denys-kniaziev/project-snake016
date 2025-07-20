@@ -131,6 +131,34 @@ class AddressBook(UserDict):
         else:
             raise KeyError(f"No record with name '{name}'")
 
+    def rename_contact(self, old_name: str, new_name: str) -> None:
+        """
+        Rename a contact in the address book.
+        
+        Args:
+            old_name (str): Current name of the contact
+            new_name (str): New name for the contact
+            
+        Raises:
+            KeyError: If contact with old_name doesn't exist
+            ValueError: If contact with new_name already exists
+        """
+        # Check if old contact exists
+        if old_name not in self.data:
+            raise KeyError(f"Contact '{old_name}' not found")
+        
+        # Check if new name already exists
+        if new_name in self.data:
+            raise ValueError(f"Contact '{new_name}' already exists")
+        
+        # Get the record and update its name
+        record = self.data[old_name]
+        record.name = Name(new_name)
+        
+        # Move the record to the new key and remove the old one
+        self.data[new_name] = record
+        del self.data[old_name]
+
     def get_upcoming_birthdays(self, days_ahead_) -> List[Dict[str, str]]:
         """Отримати список контактів, у яких день народження через вказану кількість днів."""
         today = date.today()

@@ -52,33 +52,57 @@ def parse_input(user_input: str) -> tuple[str, list[str]]:
 @input_error
 def add_contact(args: list[str], book: AddressBook) -> str:
     """
-    Add a new contact to the address book or add phone to existing contact.
+    Universal add command for contacts with optional email and birthday.
+    Can add phone, email, birthday all at once or just name + phone (minimum required).
     
     Args:
-        args (list[str]): List containing name and phone number.
+        args (list[str]): List containing name, phone, [email], [birthday].
         book (AddressBook): The address book instance.
         
     Returns:
         str: Status message.
     """
     if len(args) < 2:
-        raise ValueError("Please provide both name and phone number. Usage: add-contact <name> <phone>")
+        raise ValueError("Please provide both name and phone number. Usage: add-contact <name> <phone> [email] [birthday]")
     
-    name, phone, *_ = args
+    name = args[0]
+    phone = args[1]
+    email = args[2] if len(args) > 2 else None
+    birthday = args[3] if len(args) > 3 else None
+    
     record = book.find(name)
     message = "Contact updated."
     if record is None:
         record = Record(name)
         book.add_record(record)
         message = "Contact added."
+    
+    # Add phone (required)
     if phone:
         record.add_phone(phone)
+    
+    # Add email if provided
+    if email:
+        try:
+            record.add_email(email)
+            message += f" Email added."
+        except ValueError as e:
+            message += f" Email error: {e}"
+    
+    # Add birthday if provided
+    if birthday:
+        try:
+            record.add_birthday(birthday)
+            message += f" Birthday added."
+        except ValueError as e:
+            message += f" Birthday error: {e}"
+    
     return message
 
 @input_error
-def edit_fields(args: list[str], book: AddressBook):
+def edit_phone(args: list[str], book: AddressBook) -> str:
     """
-    Change the named fields of an existing contact.
+    Edit existing phone number for a contact.
     
     Args:
         args (list[str]): List containing name, old phone, and new phone.
@@ -88,18 +112,192 @@ def edit_fields(args: list[str], book: AddressBook):
         str: Status message.
     """
     if len(args) < 3:
-        raise ValueError("Please provide name, old phone, and new phone. Usage: change-contact <name> <old_phone> <new_phone>")
+        raise ValueError("Please provide name, old phone, and new phone. Usage: edit-phone <name> <old_phone> <new_phone>")
     
-    name, field_name, new_value = args
+    name, old_phone, new_phone = args
     record = book.find(name)
     if record is None:
         raise KeyError(f"Contact '{name}' not found")
     
-    record.edit_field(field_name, new_value)
-    return "Contact updated."
+    record.edit_phone(old_phone, new_phone)
+    return f"Phone number updated for {name}."
 
 @input_error
-def show_all(args: list[str], book: AddressBook) -> str:
+def add_phone(args: list[str], book: AddressBook) -> str:
+    """
+    Add an additional phone number to an existing contact.
+    
+    Args:
+        args (list[str]): List containing name and new phone number.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Status message.
+    """
+    if len(args) < 2:
+        raise ValueError("Please provide name and phone number. Usage: add-phone <name> <phone>")
+    
+    name, phone = args
+    record = book.find(name)
+    if record is None:
+        raise KeyError(f"Contact '{name}' not found")
+    
+    # Check if phone already exists
+    if record.find_phone(phone):
+        return f"Phone number {phone} already exists for {name}."
+    
+    record.add_phone(phone)
+    return f"Phone number {phone} added to {name}."
+
+@input_error
+def remove_phone(args: list[str], book: AddressBook) -> str:
+    """
+    Remove a specific phone number from a contact.
+    
+    Args:
+        args (list[str]): List containing name and phone number to remove.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Status message.
+    """
+    if len(args) < 2:
+        raise ValueError("Please provide name and phone number. Usage: remove-phone <name> <phone>")
+    
+    name, phone = args
+    record = book.find(name)
+    if record is None:
+        raise KeyError(f"Contact '{name}' not found")
+    
+    # Check if contact has this phone
+    if not record.find_phone(phone):
+        return f"Phone number {phone} not found for {name}."
+    
+    # Prevent removing the last phone if it's the only one
+    if len(record.phones) == 1:
+        return f"Cannot remove {phone} - it's the only phone number for {name}. Use delete-contact to remove the entire contact."
+    
+    record.remove_phone(phone)
+    return f"Phone number {phone} removed from {name}."
+
+@input_error  
+def edit_email(args: list[str], book: AddressBook) -> str:
+    """
+    Add or update email for a contact (upsert logic).
+    
+    Args:
+        args (list[str]): List containing name and new email.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Status message.
+    """
+    if len(args) < 2:
+        raise ValueError("Please provide name and email. Usage: edit-email <name> <new_email>")
+    
+    name, new_email = args
+    record = book.find(name)
+    if record is None:
+        raise KeyError(f"Contact '{name}' not found")
+    
+    action = "updated" if record.email else "added"
+    record.add_email(new_email)
+    return f"Email {action} for {name}."
+
+@input_error
+def edit_birthday(args: list[str], book: AddressBook) -> str:
+    """
+    Add or update birthday for a contact (upsert logic).
+    
+    Args:
+        args (list[str]): List containing name and birthday in DD.MM.YYYY format.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Status message.
+    """
+    if len(args) < 2:
+        raise ValueError("Please provide name and birthday. Usage: edit-birthday <name> <DD.MM.YYYY>")
+    
+    name, birthday = args
+    record = book.find(name)
+    if record is None:
+        raise KeyError(f"Contact '{name}' not found")
+    
+    action = "updated" if record.birthday else "added"
+    record.add_birthday(birthday)
+    return f"Birthday {action} for {name}."
+
+@input_error
+def edit_address(args: list[str], book: AddressBook) -> str:
+    """
+    Add or update address for a contact (upsert logic).
+    
+    Args:
+        args (list[str]): List containing name and address.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Status message.
+    """
+    if len(args) < 2:
+        raise ValueError("Please provide name and address. Usage: edit-address <name> <new_address>")
+    
+    name = args[0]
+    address = " ".join(args[1:])  # Join all remaining args as address can contain spaces
+    record = book.find(name)
+    if record is None:
+        raise KeyError(f"Contact '{name}' not found")
+    
+    action = "updated" if record.address else "added"
+    record.add_address(address)
+    return f"Address {action} for {name}."
+
+@input_error
+def edit_name(args: list[str], book: AddressBook) -> str:
+    """
+    Rename a contact.
+    
+    Args:
+        args (list[str]): List containing old name and new name.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Status message.
+    """
+    if len(args) < 2:
+        raise ValueError("Please provide old name and new name. Usage: edit-name <old_name> <new_name>")
+    
+    old_name, new_name = args
+    
+    # Use the AddressBook's rename_contact method (proper OOP approach)
+    book.rename_contact(old_name, new_name)
+    return f"Contact renamed from '{old_name}' to '{new_name}'."
+
+@input_error
+def show_contact(args: list[str], book: AddressBook) -> str:
+    """
+    Show a specific contact.
+    
+    Args:
+        args (list[str]): List containing the contact name.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Contact information or error message.
+    """
+    if len(args) < 1:
+        raise ValueError("Please provide a contact name. Usage: show-contact <name>")
+    
+    name = args[0]
+    record = book.find(name)
+    if record is None:
+        raise KeyError(f"Contact '{name}' not found")
+    
+    return str(record)
+
+@input_error
+def show_contacts(args: list[str], book: AddressBook) -> str:
     """
     Show all contacts and their information.
     
@@ -163,98 +361,26 @@ def search_contacts(args: list[str], book: AddressBook) -> str:
         return f"No contacts found matching '{' '.join(args)}'."
 
 @input_error
-def add_birthday(args: list[str], book: AddressBook) -> str:
+def delete_contact(args: list[str], book: AddressBook) -> str:
     """
-    Add birthday to a contact.
+    Delete a contact from the address book.
     
     Args:
-        args (list[str]): List containing name and birthday in DD.MM.YYYY format.
+        args (list[str]): List containing the name of the contact to delete.
         book (AddressBook): The address book instance.
         
     Returns:
         str: Status message.
-    """
-    if len(args) < 2:
-        raise ValueError("Please provide both name and birthday. Usage: add-birthday <name> <DD.MM.YYYY>")
-    
-    name, birthday = args
-    record = book.find(name)
-    if record is None:
-        raise KeyError(f"Contact '{name}' not found")
-    
-    record.add_birthday(birthday)
-    return f"Birthday added for {name}."
-
-@input_error
-def add_address(args: list[str], book: AddressBook) -> str:
-    """
-    Add address to a contact.
-    
-    Args:
-        args (list[str]): List containing name and address.
-        book (AddressBook): The address book instance.
-        
-    Returns:
-        str: Status message.
-    """
-    if len(args) < 2:
-        raise ValueError("Please provide both name and address.")
-    
-    name, address = args
-    record = book.find(name)
-    if record is None:
-        raise KeyError(f"Contact '{name}' not found")
-    
-    record.add_address(address)
-    return f"Address added for {name}."
-
-@input_error
-def add_email(args: list[str], book: AddressBook) -> str:
-    """
-    Add email to a contact.
-    
-    Args:
-        args (list[str]): List containing name and email.
-        book (AddressBook): The address book instance.
-        
-    Returns:
-        str: Status message.
-    """
-    if len(args) < 2:
-        raise ValueError("Please provide both name and email.")
-    
-    name, email = args
-    record = book.find(name)
-    if record is None:
-        raise KeyError(f"Contact '{name}' not found")
-    
-    record.add_email(email)
-    return f"Email added for {email}."
-
-@input_error
-def show_birthday(args: list[str], book: AddressBook) -> str:
-    """
-    Show birthday of a specific contact.
-    
-    Args:
-        args (list[str]): List containing the name of the contact.
-        book (AddressBook): The address book instance.
-        
-    Returns:
-        str: The birthday or an error message.
     """
     if len(args) < 1:
-        raise ValueError("Please provide a contact name. Usage: show-birthday <name>")
+        raise ValueError("Please provide a contact name. Usage: delete-contact <name>")
     
     name = args[0]
-    record = book.find(name)
-    if record is None:
+    try:
+        book.delete(name)
+        return f"Contact '{name}' deleted."
+    except KeyError:
         raise KeyError(f"Contact '{name}' not found")
-    
-    if record.birthday is None:
-        return f"No birthday found for {name}"
-    
-    return f"{name}'s birthday: {record.birthday}"
 
 @input_error
 def birthdays(args: list[str], book: AddressBook) -> str:
@@ -290,27 +416,6 @@ def birthdays(args: list[str], book: AddressBook) -> str:
     
     return "\n".join(result)
 
-@input_error
-def delete_contact(args: list[str], book: AddressBook) -> str:
-    """
-    Delete a contact from the address book.
-    
-    Args:
-        args (list[str]): List containing the name of the contact to delete.
-        book (AddressBook): The address book instance.
-        
-    Returns:
-        str: Status message.
-    """
-    if len(args) < 1:
-        raise ValueError("Please provide a contact name. Usage: delete-contact <name>")
-    
-    name = args[0]
-    try:
-        book.delete(name)
-        return f"Contact '{name}' deleted."
-    except KeyError:
-        raise KeyError(f"Contact '{name}' not found")
 
 @input_error
 def add_note(args: list[str], notebook: NoteBook) -> str:

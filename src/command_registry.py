@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import Callable, List, Dict
 from commands import (
     # Address book functions
-    add_contact, show_all, search_contacts, delete_contact,
-    add_birthday, add_address, add_email, edit_fields, show_birthday, birthdays,
+    add_contact, show_contacts, show_contact, search_contacts, delete_contact,
+    edit_phone, add_phone, remove_phone, edit_email, edit_birthday, edit_address, edit_name, birthdays,
     # Note book functions
     add_note, remove_note, show_all_notes, search_notes, edit_note,
     search_notes_by_tag, sort_notes_by_tag, add_tag_to_note, remove_tag_from_note
@@ -89,22 +89,95 @@ class CommandRegistry:
         # === ADDRESS BOOK COMMANDS ===
         # Commands for managing contacts, birthdays, addresses, emails
         
+        # Adding contacts
         self._register_command(
             name="add-contact",
             handler=add_contact,
-            description="Add a new contact or phone to existing contact",
-            usage="add-contact <name> <phone>",
+            description="Add a new contact with phone, optional email and birthday",
+            usage="add-contact <name> <phone> [email] [birthday]",
             category="Address Book",
-            save_addressbook=True  # Save after adding contact
+            save_addressbook=True
+        )
+        
+        # Editing commands (with upsert logic)
+        self._register_command(
+            name="edit-phone",
+            handler=edit_phone,
+            description="Edit existing phone number",
+            usage="edit-phone <name> <old_phone> <new_phone>",
+            category="Address Book",
+            save_addressbook=True
         )
         
         self._register_command(
-            name="show-all-contacts",
-            handler=show_all,
-            description="Show all contacts",
-            usage="show-all-contacts",
+            name="add-phone",
+            handler=add_phone,
+            description="Add additional phone number to contact",
+            usage="add-phone <name> <phone>",
+            category="Address Book",
+            save_addressbook=True
+        )
+        
+        self._register_command(
+            name="remove-phone",
+            handler=remove_phone,
+            description="Remove specific phone number from contact",
+            usage="remove-phone <name> <phone>",
+            category="Address Book",
+            save_addressbook=True
+        )
+        
+        self._register_command(
+            name="edit-email",
+            handler=edit_email,
+            description="Add or update email",
+            usage="edit-email <name> <new_email>",
+            category="Address Book",
+            save_addressbook=True
+        )
+        
+        self._register_command(
+            name="edit-birthday",
+            handler=edit_birthday,
+            description="Add or update birthday",
+            usage="edit-birthday <name> <DD.MM.YYYY>",
+            category="Address Book",
+            save_addressbook=True
+        )
+        
+        self._register_command(
+            name="edit-address",
+            handler=edit_address,
+            description="Add or update address",
+            usage="edit-address <name> <new_address>",
+            category="Address Book",
+            save_addressbook=True
+        )
+        
+        self._register_command(
+            name="edit-name",
+            handler=edit_name,
+            description="Rename contact",
+            usage="edit-name <old_name> <new_name>",
+            category="Address Book",
+            save_addressbook=True
+        )
+        
+        # Viewing/Managing commands
+        self._register_command(
+            name="show-contact",
+            handler=show_contact,
+            description="Show specific contact",
+            usage="show-contact <name>",
             category="Address Book"
-            # No save needed - read-only operation
+        )
+        
+        self._register_command(
+            name="show-contacts",
+            handler=show_contacts,
+            description="Show all contacts",
+            usage="show-contacts",
+            category="Address Book"
         )
         
         self._register_command(
@@ -113,7 +186,6 @@ class CommandRegistry:
             description="Search contacts by name, phone, email, or address",
             usage="search-contacts <query>",
             category="Address Book"
-            # No save needed - read-only operation
         )
         
         self._register_command(
@@ -122,61 +194,15 @@ class CommandRegistry:
             description="Delete a contact",
             usage="delete-contact <name>",
             category="Address Book",
-            save_addressbook=True  # Save after deletion
-        )
-        
-        self._register_command(
-            name="add-birthday",
-            handler=add_birthday,
-            description="Add birthday to contact",
-            usage="add-birthday <name> <DD.MM.YYYY>",
-            category="Address Book",
-            save_addressbook=True  # Save after adding birthday
-        )
-        
-        self._register_command(
-            name="add-address",
-            handler=add_address,
-            description="Add address to contact",
-            usage="add-address <name> <address>",
-            category="Address Book",
-            save_addressbook=True  # Save after adding address
-        )
-        
-        self._register_command(
-            name="add-email",
-            handler=add_email,
-            description="Add email to contact",
-            usage="add-email <name> <email>",
-            category="Address Book",
-            save_addressbook=True  # Save after adding email
-        )
-        
-        self._register_command(
-            name="edit-fields",
-            handler=edit_fields,
-            description="Edit named field",
-            usage="edit-fields <name> <field> <new_value>",
-            category="Address Book",
-            save_addressbook=True  # Save after editing
-        )
-        
-        self._register_command(
-            name="show-birthday",
-            handler=show_birthday,
-            description="Show contact's birthday",
-            usage="show-birthday <name>",
-            category="Address Book"
-            # No save needed - read-only operation
+            save_addressbook=True
         )
         
         self._register_command(
             name="birthdays",
             handler=birthdays,
-            description="Show contacts whose birthday is a specified number of days away from the current date",
-            usage="birthdays <number of days>",
+            description="Show upcoming birthdays",
+            usage="birthdays <days>",
             category="Address Book"
-            # No save needed - read-only operation
         )
         
         # === NOTE BOOK COMMANDS ===
