@@ -416,7 +416,7 @@ def add_note(args: list[str], notebook: NoteBook) -> str:
         Add a new note to the note book.
         
         Args:
-            args (list[str]): List containing title and content.
+            args (list[str]): List containing title, content, and optional tags.
             notebook (NoteBook): The note book instance.
 
         Returns:
@@ -424,8 +424,16 @@ def add_note(args: list[str], notebook: NoteBook) -> str:
         """    
     if len(args) < 2:
         raise ValueError("Please provide a title and content for the note.")
-    title, content = args[0], " ".join(args[1:])
-    tags = [tag.strip() for tag in args[2:]] if len(args) > 2 else []
+    
+    title = args[0]
+    content = args[1]
+    
+    # Handle tags if provided
+    tags = []
+    if len(args) > 2:
+        # Tags are in the third argument, split by comma
+        tags = [tag.strip() for tag in args[2].split(',') if tag.strip()]
+    
     note = Note(title, content, tags)
     return notebook.add(note)
 
@@ -449,41 +457,64 @@ def remove_note(args: list[str], notebook: NoteBook) -> str:
 @input_error
 def show_all_notes(args: list[str], notebook: NoteBook) -> str:
     """
-        Show all notes in the note book.
-        
-        Args:
-            args (list[str]): Should be empty.
-            notebook (NoteBook): The note book instance.
+    Show all notes in the note book with table formatting.
+    
+    Args:
+        args (list[str]): Should be empty.
+        notebook (NoteBook): The note book instance.
 
-        Returns:
-            str: Formatted string of all notes or message if no notes.
-        """
-    return notebook.show_all() if not args else "No arguments expected for this command."
+    Returns:
+        str: Formatted table of all notes or message if no notes.
+    """
+    if args:
+        return "No arguments expected for this command."
+    
+    if not notebook.notes:
+        return "No notes found."
+    
+    return UIFormatter.format_notes_table(notebook.notes)
+
+@input_error
+def show_note(args: list[str], notebook: NoteBook) -> str:
+    """
+    Show a specific note with detailed formatting.
+    
+    Args:
+        args (list[str]): List containing the note title.
+        notebook (NoteBook): The note book instance.
+
+    Returns:
+        str: Formatted note details or error message.
+    """
+    if len(args) < 1:
+        raise ValueError("Please provide a note title. Usage: show-note <title>")
+    
+    title = args[0]
+    note = notebook.find(title)
+    if note is None:
+        raise KeyError(f"Note '{title}' not found")
+    
+    return UIFormatter.format_single_note(note)
 
 @input_error
 def search_notes(args: list[str], notebook: NoteBook) -> str:
     """
-        Search for notes containing a specific query in their title or content.
-        
-        Args:
-            args (list[str]): List containing the search query.
-            notebook (NoteBook): The note book instance.
+    Search for notes containing a specific query in their title or content.
+    
+    Args:
+        args (list[str]): List containing the search query.
+        notebook (NoteBook): The note book instance.
 
-        Returns:
-            list[Note]: List of notes matching the search query.
-        """
+    Returns:
+        str: Formatted table of matching notes.
+    """
     if len(args) < 1:
         raise ValueError("Please provide a search query.")
     query = " ".join(args)
     result = notebook.search(query)
 
     if result:
-        message_parts = [f"Found {len(result)} note(s) for note '{query}':"]
-        for i, note in enumerate(result):
-            message_parts.append(
-                f"  {i+1}. Title: {note.title}, Content: {note.content}, Tags: {', '.join(note.tags)}"
-            )
-        return "\n".join(message_parts)
+        return f"Found {len(result)} note(s) matching '{query}':\n" + UIFormatter.format_notes_table(result)
     else:
         return f"No notes found matching '{query}'."
 
@@ -512,29 +543,24 @@ def edit_note(args: list[str], notebook: NoteBook) -> str:
 @input_error
 def search_notes_by_tag(args: list[str], notebook: NoteBook) -> str:
     """
-        Search for notes by a specific tag.
-        
-        Args:
-            args (list[str]): List containing the tag to search for.
-            notebook (NoteBook): The note book instance.
+    Search for notes by a specific tag.
+    
+    Args:
+        args (list[str]): List containing the tag to search for.
+        notebook (NoteBook): The note book instance.
 
-        Returns:
-            list[Note]: List of notes matching the tag.
-        """
+    Returns:
+        str: Formatted table of notes matching the tag.
+    """
     if len(args) < 1:
         raise ValueError("Please provide a tag to search for.")
     tag = args[0]
     result = notebook.search_by_tag(tag)
 
     if result:
-        message_parts = [f"Found {len(result)} note(s) for tag '{tag}':"]
-        for i, note in enumerate(result):
-            message_parts.append(
-                f"  {i+1}. Title: {note.title}, Content: {note.content}, Tags: {', '.join(note.tags)}"
-            )
-        return "\n".join(message_parts)
+        return f"Found {len(result)} note(s) with tag '{tag}':\n" + UIFormatter.format_notes_table(result)
     else:
-        return f"No notes found matching for tag '{tag}'."
+        return f"No notes found with tag '{tag}'."
 
 @input_error
 def sort_notes_by_tag(args: list[str], notebook: NoteBook) -> list[Note]:

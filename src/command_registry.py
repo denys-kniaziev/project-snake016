@@ -6,7 +6,7 @@ from commands import (
     add_contact, show_contacts, show_contact, search_contacts, delete_contact,
     edit_phone, add_phone, remove_phone, edit_email, edit_birthday, edit_address, edit_name, birthdays,
     # Note book functions
-    add_note, remove_note, show_all_notes, search_notes, edit_note,
+    add_note, remove_note, show_all_notes, show_note, search_notes, edit_note,
     search_notes_by_tag, sort_notes_by_tag, add_tag_to_note, remove_tag_from_note
 )
 
@@ -232,6 +232,15 @@ class CommandRegistry:
             handler=show_all_notes,
             description="Show all notes",
             usage="show-all-notes",
+            category="Note Book"
+            # No save needed - read-only operation
+        )
+        
+        self._register_command(
+            name="show-note",
+            handler=show_note,
+            description="Show a specific note by title",
+            usage="show-note <title>",
             category="Note Book"
             # No save needed - read-only operation
         )

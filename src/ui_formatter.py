@@ -147,6 +147,30 @@ class UIFormatter:
         return f"{Colors.BOLD}{table}{Colors.RESET}"
     
     @staticmethod
+    def format_single_note(note: Note) -> str:
+        """Format a single note with colored fields."""
+        output = []
+        output.append(f"{Colors.BOLD}{Colors.HIGHLIGHT}📝 Note Details{Colors.RESET}")
+        output.append(f"{Colors.INFO}Title:{Colors.RESET} {Colors.BOLD}{note.title}{Colors.RESET}")
+        
+        # Handle multi-line content with proper formatting
+        content_lines = note.content.split('\n')
+        if len(content_lines) == 1:
+            output.append(f"{Colors.INFO}Content:{Colors.RESET} {note.content}")
+        else:
+            output.append(f"{Colors.INFO}Content:{Colors.RESET}")
+            for line in content_lines:
+                output.append(f"  {line}")
+        
+        if note.tags:
+            tags_str = ", ".join(f"{Colors.HIGHLIGHT}{tag}{Colors.RESET}" for tag in note.tags)
+            output.append(f"{Colors.INFO}Tags:{Colors.RESET} {tags_str}")
+        else:
+            output.append(f"{Colors.INFO}Tags:{Colors.RESET} {Colors.DIM}No tags{Colors.RESET}")
+        
+        return "\n".join(output)
+    
+    @staticmethod
     def format_birthdays_table(birthdays: List[Dict[str, str]]) -> str:
         """Format upcoming birthdays as a pretty table."""
         if not birthdays:
