@@ -1,4 +1,3 @@
-from textwrap import dedent
 from address_book import AddressBook, Record
 from note_book import NoteBook, Note
 
@@ -24,7 +23,7 @@ def input_error(func):
         except ValueError as e:
             return f"Error: {str(e)}"
         except KeyError:
-            return "Contact not found."
+            return "Item not found."
         except IndexError:
             return "Not enough arguments provided."
         except Exception as e:
@@ -63,7 +62,7 @@ def add_contact(args: list[str], book: AddressBook) -> str:
         str: Status message.
     """
     if len(args) < 2:
-        raise ValueError("Please provide both name and phone number. Usage: add <name> <phone>")
+        raise ValueError("Please provide both name and phone number. Usage: add-contact <name> <phone>")
     
     name, phone, *_ = args
     record = book.find(name)
@@ -75,29 +74,6 @@ def add_contact(args: list[str], book: AddressBook) -> str:
     if phone:
         record.add_phone(phone)
     return message
-
-@input_error
-def change_contact(args: list[str], book: AddressBook) -> str:
-    """
-    Change the phone number of an existing contact.
-    
-    Args:
-        args (list[str]): List containing name, old phone, and new phone.
-        book (AddressBook): The address book instance.
-        
-    Returns:
-        str: Status message.
-    """
-    if len(args) < 3:
-        raise ValueError("Please provide name, old phone, and new phone. Usage: change <name> <old_phone> <new_phone>")
-    
-    name, old_phone, new_phone = args
-    record = book.find(name)
-    if record is None:
-        raise KeyError(f"Contact '{name}' not found")
-    
-    record.edit_phone(old_phone, new_phone)
-    return "Contact updated."
 
 @input_error
 def edit_fields(args: list[str], book: AddressBook):
@@ -112,7 +88,7 @@ def edit_fields(args: list[str], book: AddressBook):
         str: Status message.
     """
     if len(args) < 3:
-        raise ValueError("Please provide name, old phone, and new phone. Usage: change <name> <old_phone> <new_phone>")
+        raise ValueError("Please provide name, old phone, and new phone. Usage: change-contact <name> <old_phone> <new_phone>")
     
     name, field_name, new_value = args
     record = book.find(name)
@@ -121,32 +97,6 @@ def edit_fields(args: list[str], book: AddressBook):
     
     record.edit_field(field_name, new_value)
     return "Contact updated."
-
-@input_error
-def show_phone(args: list[str], book: AddressBook) -> str:
-    """
-    Show the phone numbers of a specific contact.
-    
-    Args:
-        args (list[str]): List containing the name of the contact.
-        book (AddressBook): The address book instance.
-        
-    Returns:
-        str: The phone numbers or an error message.
-    """
-    if len(args) < 1:
-        raise ValueError("Please provide a contact name. Usage: phone <name>")
-    
-    name = args[0]
-    record = book.find(name)
-    if record is None:
-        raise KeyError(f"Contact '{name}' not found")
-    
-    if not record.phones:
-        return f"No phone numbers found for {name}"
-    
-    phones = ", ".join(phone.value for phone in record.phones)
-    return f"{name}: {phones}"
 
 @input_error
 def show_all(args: list[str], book: AddressBook) -> str:
@@ -168,6 +118,49 @@ def show_all(args: list[str], book: AddressBook) -> str:
         result.append(str(record))
     
     return "\n".join(result)
+
+@input_error
+def search_contacts(args: list[str], book: AddressBook) -> str:
+    """
+    Search for contacts by name, phone, email, or address.
+    
+    Args:
+        args (list[str]): List containing the search query.
+        book (AddressBook): The address book instance.
+        
+    Returns:
+        str: Formatted string of matching contacts.
+    """
+    if len(args) < 1:
+        raise ValueError("Please provide a search query.")
+    
+    query = " ".join(args).lower()
+    results = []
+    
+    for record in book.data.values():
+        # Search in name
+        if query in record.name.value.lower():
+            results.append(record)
+            continue
+            
+        # Search in phones
+        for phone in record.phones:
+            if query in phone.value:
+                results.append(record)
+                break
+        else:
+            # Search in email
+            if record.email and query in record.email.value.lower():
+                results.append(record)
+            # Search in address
+            elif record.address and query in record.address.value.lower():
+                results.append(record)
+    
+    if results:
+        result_strings = [str(record) for record in results]
+        return f"Found {len(results)} contact(s):\n" + "\n".join(result_strings)
+    else:
+        return f"No contacts found matching '{' '.join(args)}'."
 
 @input_error
 def add_birthday(args: list[str], book: AddressBook) -> str:
@@ -264,21 +257,32 @@ def show_birthday(args: list[str], book: AddressBook) -> str:
     return f"{name}'s birthday: {record.birthday}"
 
 @input_error
-def birthdays(number_days:int, book: AddressBook) -> str:
+def birthdays(args: list[str], book: AddressBook) -> str:
     """
     Show upcoming birthdays for the next number_days days
     
     Args:
-        number_days: Number days
+        args (list[str]): List containing the number of days.
         book (AddressBook): The address book instance.
         
     Returns:
         str: Formatted string of upcoming birthdays.
     """
-    upcoming = book.get_upcoming_birthdays(number_days)
+    if len(args) < 1:
+        raise ValueError("Please provide the number of days.")
+    
+    try:
+        number_days = int(args[0])
+    except ValueError:
+        raise ValueError("Number of days must be a valid integer.")
+    
+    if number_days < 0:
+        raise ValueError("Number of days must be positive.")
+    
+    upcoming = book.get_upcoming_birthdays(args)
     
     if not upcoming:
-        return "No upcoming birthdays in the {number_days} days."
+        return f"No upcoming birthdays in the next {number_days} days."
     
     result = ["Upcoming birthdays:"]
     for birthday_info in upcoming:
@@ -299,7 +303,7 @@ def delete_contact(args: list[str], book: AddressBook) -> str:
         str: Status message.
     """
     if len(args) < 1:
-        raise ValueError("Please provide a contact name. Usage: delete <name>")
+        raise ValueError("Please provide a contact name. Usage: delete-contact <name>")
     
     name = args[0]
     try:
@@ -307,57 +311,6 @@ def delete_contact(args: list[str], book: AddressBook) -> str:
         return f"Contact '{name}' deleted."
     except KeyError:
         raise KeyError(f"Contact '{name}' not found")
-
-def show_help() -> str:
-    """
-    Show help information with all available commands and their usage.
-    
-    Returns:
-        str: Formatted help text with all commands
-    """
-    help_text = dedent("""
-        Available general commands:
-        hello                                   - Greet the bot
-        help                                    - Show this help message
-        exit/close                              - Exit the program                       
-        
-        --- Address Book Commands ---
-        add <name> <phone>                      - Add a new contact or phone to existing contact
-        change <name> <old_phone> <new_phone>   - Change existing contact's phone number
-        phone <name>                            - Show contact's phone numbers
-        all                                     - Show all contacts
-        add-birthday <name> <DD.MM.YYYY>        - Add birthday to contact
-        add-address <name> <address>            - Add address to contact
-        add-email <name> <email>                - Add email to contact
-        show-birthday <name>                    - Show contact's birthday
-        birthdays <number of days>              - Show contacts whose birthday is a specified number of days away from the current date
-        edit-fields <name> <name field> <new_value> - Edit named field
-        delete <name>                           - Delete a contact
-
-        --- Note Book Commands ---
-        add-note <title> <content> [tags]       - Add a new note
-        remove-note <title>                     - Remove a note by title
-        show-all-notes                          - Show all notes
-        search-notes <query>                    - Search notes by title or content
-        edit-note <title> [new_title] [new_content] [new_tags] - Edit an existing note
-        search-notes-by-tag <tag>               - Search notes by a specific tag
-        sort-notes-by-tag                       - Sort notes by their tags
-        add-tag-to-note <title> <tag>           - Add a tag to an existing note
-        remove-tag-from-note <title> <tag>      - Remove a tag from an existing note
-        
-        Examples:
-        add John 1234567890
-        change John 1234567890 0987654321
-        phone John
-        add-birthday John 15.03.1990
-        add-address John USA
-        add-email John 124@gmail.com
-        show-birthday John
-        birthdays 5
-        edit-fields John birthday 01.05.1997
-        delete John 
-        all""")
-    return help_text.strip()
 
 @input_error
 def add_note(args: list[str], notebook: NoteBook) -> str:
@@ -427,14 +380,14 @@ def search_notes(args: list[str], notebook: NoteBook) -> str:
     result = notebook.search(query)
 
     if result:
-        message_parts = [f"✅ Found {len(result)} note(s) for note '{query}':"]
+        message_parts = [f"Found {len(result)} note(s) for note '{query}':"]
         for i, note in enumerate(result):
             message_parts.append(
                 f"  {i+1}. Title: {note.title}, Content: {note.content}, Tags: {', '.join(note.tags)}"
             )
         return "\n".join(message_parts)
     else:
-        return f"❌ No notes found matching '{query}'."
+        return f"No notes found matching '{query}'."
 
 @input_error
 def edit_note(args: list[str], notebook: NoteBook) -> str:
@@ -476,14 +429,14 @@ def search_notes_by_tag(args: list[str], notebook: NoteBook) -> str:
     result = notebook.search_by_tag(tag)
 
     if result:
-        message_parts = [f"✅ Found {len(result)} note(s) for tag '{tag}':"]
+        message_parts = [f"Found {len(result)} note(s) for tag '{tag}':"]
         for i, note in enumerate(result):
             message_parts.append(
                 f"  {i+1}. Title: {note.title}, Content: {note.content}, Tags: {', '.join(note.tags)}"
             )
         return "\n".join(message_parts)
     else:
-        return f"❌ No notes found matching for tag '{tag}'."
+        return f"No notes found matching for tag '{tag}'."
 
 @input_error
 def sort_notes_by_tag(args: list[str], notebook: NoteBook) -> list[Note]:
