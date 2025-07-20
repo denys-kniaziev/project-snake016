@@ -1,8 +1,8 @@
-from commands import parse_input
-from data_persistence import save_addressbook, load_addressbook, save_notebook, load_notebook
-from command_suggester import command_suggester
-from command_registry import registry
-from ui_formatter import UIFormatter, format_command_result
+from .commands import parse_input
+from .data_persistence import save_addressbook, load_addressbook, save_notebook, load_notebook
+from .command_suggester import command_suggester
+from .command_registry import registry
+from .ui_formatter import UIFormatter, format_command_result
 
 
 def execute_command(command_name: str, args: list, addressbook, notebook) -> tuple[str, bool]:

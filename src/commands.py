@@ -1,6 +1,6 @@
-from address_book import AddressBook, Record
-from note_book import NoteBook, Note
-from ui_formatter import UIFormatter
+from .address_book import AddressBook, Record
+from .note_book import NoteBook, Note
+from .ui_formatter import UIFormatter
 import shlex
 
 
