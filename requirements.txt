@@ -1,0 +1,8 @@
+# Address Book Assistant Bot Requirements
+
+# Core dependencies
+prompt-toolkit>=3.0.36    # Interactive command line interface with autocomplete
+
+# UI/UX enhancements
+colorama>=0.4.6          # Cross-platform colored terminal text
+prettytable>=3.6.0       # ASCII table formatting

@@ -3,7 +3,7 @@ import difflib
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.document import Document
-from command_registry import registry
+from .command_registry import registry
 
 
 class CommandCompleter(Completer):
