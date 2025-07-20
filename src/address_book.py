@@ -50,12 +50,16 @@ class Phone(Field):
     """
     Phone number field with validation.
     
-    Validates that phone numbers contain exactly 10 digits.
-    Stores phone numbers in a standardized format for consistency.
+    Validates phone numbers in multiple formats:
+    - Local format: exactly 10 digits (e.g., "1234567890")
+    - International format: country code + 7-15 digits (e.g., "+1234567890123")
+    - Alternative format: country code without + (e.g., "1234567890123")
     
     Validation Rules:
-        - Must contain exactly 10 digits
-        - Only numeric characters allowed
+        - Local: Must contain exactly 10 digits
+        - International: Must start with + followed by 8-16 digits total
+        - Alternative: Must be 11-16 digits (assumes country code without +)
+        - Only numeric characters allowed (plus + for international)
         - No formatting characters (dashes, spaces, parentheses)
     
     Raises:
@@ -73,15 +77,22 @@ class Phone(Field):
             ValueError: If phone number format is invalid
         """
         if not self.validate_phone(value):
-            raise ValueError("Phone number must contain exactly 10 digits")
+            raise ValueError(
+                "Phone number must be either:\n"
+                "- 10 digits for local numbers (e.g., 1234567890)\n"
+                "- +[country code][number] for international (e.g., +1234567890)\n"
+                "- 11-16 digits for country code without + (e.g., 1234567890123)"
+            )
         super().__init__(value)
 
     def validate_phone(self, phone: str) -> bool:
         """
         Validate phone number format.
         
-        Checks that the phone number contains exactly 10 digits
-        with no other characters.
+        Supports multiple international and local formats:
+        1. Local format: exactly 10 digits
+        2. International with +: + followed by 7-15 digits
+        3. International without +: 11-16 digits (assumes country code)
         
         Args:
             phone (str): Phone number to validate
@@ -89,7 +100,29 @@ class Phone(Field):
         Returns:
             bool: True if valid, False otherwise
         """
-        return phone.isdigit() and len(phone) == 10
+        # Remove any whitespace for validation
+        phone = phone.strip()
+        
+        # Check if empty
+        if not phone:
+            return False
+        
+        # Local format: exactly 10 digits
+        if phone.isdigit() and len(phone) == 10:
+            return True
+        
+        # International format with +: +[country code][number]
+        if phone.startswith('+'):
+            # Remove + and check if remaining are digits
+            digits_part = phone[1:]
+            if digits_part.isdigit() and 7 <= len(digits_part) <= 15:
+                return True
+        
+        # International format without +: 11-16 digits (assumes country code)
+        if phone.isdigit() and 11 <= len(phone) <= 16:
+            return True
+        
+        return False
 
 
 class Birthday(Field):
@@ -453,9 +486,7 @@ class AddressBook(UserDict):
             
         Returns:
             List[Dict[str, str]]: List of birthday reminders with name and date
-        """
-        from datetime import datetime, timedelta
-        
+        """        
         today = date.today()
         result = []
 
