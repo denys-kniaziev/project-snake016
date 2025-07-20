@@ -1,6 +1,7 @@
 from address_book import AddressBook, Record
 from note_book import NoteBook, Note
 from ui_formatter import UIFormatter
+import shlex
 
 
 def input_error(func):
@@ -35,6 +36,7 @@ def input_error(func):
 def parse_input(user_input: str) -> tuple[str, list[str]]:
     """
     Parse user input into command and arguments.
+    Supports quoted strings for multi-word arguments.
     
     Args:
         user_input (str): The raw input string from the user.
@@ -45,10 +47,21 @@ def parse_input(user_input: str) -> tuple[str, list[str]]:
     # Handle empty input
     if not user_input.strip():
         return "", []
+    
+    try:
+        # Use shlex to properly handle quoted strings
+        parts = shlex.split(user_input)
+        if not parts:
+            return "", []
         
-    cmd, *args = user_input.split()
-    cmd = cmd.strip().lower()
-    return cmd, args
+        cmd = parts[0].strip().lower()
+        args = parts[1:] if len(parts) > 1 else []
+        return cmd, args
+    except ValueError:
+        # Fallback to simple split if shlex fails (e.g., unmatched quotes)
+        cmd, *args = user_input.split()
+        cmd = cmd.strip().lower()
+        return cmd, args
 
 @input_error
 def add_contact(args: list[str], book: AddressBook) -> str:

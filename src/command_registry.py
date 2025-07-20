@@ -213,7 +213,7 @@ class CommandRegistry:
             name="add-note",
             handler=add_note,
             description="Add a new note",
-            usage="add-note <title> <content> [tags]",
+            usage='add-note "title" "content" "tag1,tag2"',
             category="Note Book",
             save_notebook=True  # Save after adding note
         )
@@ -222,7 +222,7 @@ class CommandRegistry:
             name="remove-note",
             handler=remove_note,
             description="Remove a note by title",
-            usage="remove-note <title>",
+            usage='remove-note "title"',
             category="Note Book",
             save_notebook=True  # Save after removal
         )
@@ -240,7 +240,7 @@ class CommandRegistry:
             name="show-note",
             handler=show_note,
             description="Show a specific note by title",
-            usage="show-note <title>",
+            usage='show-note "title"',
             category="Note Book"
             # No save needed - read-only operation
         )
@@ -249,7 +249,7 @@ class CommandRegistry:
             name="search-notes",
             handler=search_notes,
             description="Search notes by title or content",
-            usage="search-notes <query>",
+            usage='search-notes "query"',
             category="Note Book"
             # No save needed - read-only operation
         )
@@ -258,7 +258,7 @@ class CommandRegistry:
             name="edit-note",
             handler=edit_note,
             description="Edit an existing note",
-            usage="edit-note <title> [new_title] [new_content] [new_tags]",
+            usage='edit-note "title" "new_title" "new_content" "new_tags"',
             category="Note Book",
             save_notebook=True  # Save after editing
         )
@@ -267,7 +267,7 @@ class CommandRegistry:
             name="search-notes-by-tag",
             handler=search_notes_by_tag,
             description="Search notes by a specific tag",
-            usage="search-notes-by-tag <tag>",
+            usage='search-notes-by-tag "tag"',
             category="Note Book"
             # No save needed - read-only operation
         )
@@ -285,7 +285,7 @@ class CommandRegistry:
             name="add-tag-to-note",
             handler=add_tag_to_note,
             description="Add a tag to an existing note",
-            usage="add-tag-to-note <title> <tag>",
+            usage='add-tag-to-note "title" "tag"',
             category="Note Book",
             save_notebook=True  # Save after adding tag
         )
@@ -294,7 +294,7 @@ class CommandRegistry:
             name="remove-tag-from-note",
             handler=remove_tag_from_note,
             description="Remove a tag from an existing note",
-            usage="remove-tag-from-note <title> <tag>",
+            usage='remove-tag-from-note "title" "tag"',
             category="Note Book",
             save_notebook=True  # Save after removing tag
         )
