@@ -1,112 +1,112 @@
-from commands import ( 
-    parse_input, show_help, add_contact,
-    show_all, search_contacts, add_birthday, show_birthday, birthdays, delete_contact, add_address, add_email, 
-    edit_fields, 
-    add_note, remove_note, show_all_notes, search_notes, edit_note, search_notes_by_tag, sort_notes_by_tag, add_tag_to_note, remove_tag_from_note)
-
+from commands import parse_input
 from data_persistence import save_addressbook, load_addressbook, save_notebook, load_notebook
 from command_suggester import command_suggester
+from command_registry import registry
+
+
+def execute_command(command_name: str, args: list, addressbook, notebook) -> tuple[str, bool]:
+    """
+    Execute a command using the centralized registry.
+    
+    This function handles all command execution logic, including:
+    - Command validation through the registry
+    - Proper argument passing based on command category
+    - Automatic save logic based on command metadata
+    
+    Args:
+        command_name: The name of the command to execute
+        args: List of arguments for the command
+        addressbook: The address book instance
+        notebook: The notebook instance
+        
+    Returns:
+        tuple: (result_message, should_exit)
+    """
+    # Get command metadata from registry
+    cmd_obj = registry.get_command(command_name)
+    
+    if not cmd_obj:
+        # Command not found - provide intelligent suggestions
+        suggestion = command_suggester.analyze_and_suggest(command_name)
+        return suggestion, False
+    
+    # Handle special exit commands
+    if command_name in ["exit", "close"]:
+        return "", True  # Signal to exit
+    
+    try:
+        # Execute command based on its category
+        if cmd_obj.category == "General":
+            # General commands (help, etc.)
+            result = cmd_obj.handler(args)
+        elif cmd_obj.category == "Address Book":
+            # Address book commands need the addressbook instance
+            result = cmd_obj.handler(args, addressbook)
+            # Save addressbook if command requires it
+            if cmd_obj.save_addressbook:
+                save_addressbook(addressbook, silentmode=True)
+        elif cmd_obj.category == "Note Book":
+            # Note book commands need the notebook instance
+            result = cmd_obj.handler(args, notebook)
+            # Save notebook if command requires it
+            if cmd_obj.save_notebook:
+                save_notebook(notebook, silentmode=True)
+        else:
+            return f"Unknown command category: {cmd_obj.category}", False
+        
+        return result, False
+        
+    except Exception as e:
+        # Handle command execution errors gracefully
+        return f"Error executing command: {str(e)}", False
 
 
 def main():
-    """Main function that runs the assistant bot."""
+    """
+    Main function that runs the assistant bot.
+    
+    This simplified main loop uses the centralized command registry
+    to eliminate all duplication and provide a clean, maintainable
+    command execution system.
+    """
+    # Load data at startup
     addressbook = load_addressbook()
     notebook = load_notebook()
+    
+    # Welcome message
     print("Welcome to the assistant bot!")
     print("Tip: Use Tab for autocomplete and arrow keys for navigation")
+    print("Type 'help' to see all available commands")
 
     try:
         while True:
+            # Get user input with autocomplete support
             user_input = command_suggester.get_user_input("Enter a command: ")
+            
+            # Parse the input into command and arguments
             command, args = parse_input(user_input)
             
-            match command:
-                case "close" | "exit":
-                    break
-
-                case "help":
-                    print(show_help())
-
-                case "add-contact":
-                    print(add_contact(args, addressbook))
-                    save_addressbook(addressbook, silentmode=True)
-
-                case "show-all-contacts":
-                    print(show_all(args, addressbook))
-
-                case "search-contacts":
-                    print(search_contacts(args, addressbook))
-
-                case "delete-contact":
-                    print(delete_contact(args, addressbook))
-                    save_addressbook(addressbook, silentmode=True)
-
-                case "add-birthday":
-                    print(add_birthday(args, addressbook))
-                    save_addressbook(addressbook, silentmode=True)
-
-                case "add-address":
-                    print(add_address(args, addressbook))
-                    save_addressbook(addressbook, silentmode=True)
-
-                case "add-email":
-                    print(add_email(args, addressbook))
-                    save_addressbook(addressbook, silentmode=True)
-
-                case "edit-fields":
-                    print(edit_fields(args, addressbook))
-                    save_addressbook(addressbook, silentmode=True)
-
-                case "show-birthday":
-                    print(show_birthday(args, addressbook))
-
-                case "birthdays":
-                    print(birthdays(args, addressbook))
-
-                case "add-note":
-                    print(add_note(args, notebook))
-                    save_notebook(notebook, silentmode=True)
-
-                case "remove-note":
-                    print(remove_note(args, notebook))
-                    save_notebook(notebook, silentmode=True)
-
-                case "show-all-notes":
-                    print(show_all_notes(args, notebook))
-
-                case "search-notes":
-                    print(search_notes(args, notebook))
-
-                case "edit-note":
-                    print(edit_note(args, notebook))
-                    save_notebook(notebook, silentmode=True)
-
-                case "search-notes-by-tag":
-                    print(search_notes_by_tag(args, notebook))
-
-                case "sort-notes-by-tag":
-                    print(sort_notes_by_tag(args, notebook))
-
-                case "add-tag-to-note":
-                    print(add_tag_to_note(args, notebook))
-                    save_notebook(notebook, silentmode=True)
-
-                case "remove-tag-from-note":
-                    print(remove_tag_from_note(args, notebook))
-                    save_notebook(notebook, silentmode=True)
-
-                case "":
-                    continue  # Skip empty inputs
-
-                case _:
-                    # Provide intelligent command suggestions for unrecognized commands
-                    suggestion = command_suggester.analyze_and_suggest(user_input)
-                    print(suggestion)
+            # Skip empty inputs
+            if command == "":
+                continue
+            
+            # Execute the command using the registry
+            result, should_exit = execute_command(command, args, addressbook, notebook)
+            
+            # Print result if there is one
+            if result:
+                print(result)
+            
+            # Exit if requested
+            if should_exit:
+                break
     
     except KeyboardInterrupt:
         print("\nReceived Ctrl+C, exiting...")
     
     finally:
+        # Save data before exiting
+        print("Saving data...")
         save_addressbook(addressbook)
         save_notebook(notebook)
         print("Good bye!")

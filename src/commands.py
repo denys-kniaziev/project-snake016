@@ -1,4 +1,3 @@
-from textwrap import dedent
 from address_book import AddressBook, Record
 from note_book import NoteBook, Note
 
@@ -24,7 +23,7 @@ def input_error(func):
         except ValueError as e:
             return f"Error: {str(e)}"
         except KeyError:
-            return "Contact not found."
+            return "Item not found."
         except IndexError:
             return "Not enough arguments provided."
         except Exception as e:
@@ -313,42 +312,6 @@ def delete_contact(args: list[str], book: AddressBook) -> str:
     except KeyError:
         raise KeyError(f"Contact '{name}' not found")
 
-def show_help() -> str:
-    """
-    Show help information with all available commands and their usage.
-    
-    Returns:
-        str: Formatted help text with all commands
-    """
-    help_text = dedent("""
-        Available general commands:
-        help                                    - Show this help message
-        exit/close                              - Exit the program                       
-        
-        --- Address Book Commands ---
-        add-contact <name> <phone>              - Add a new contact or phone to existing contact
-        show-all-contacts                       - Show all contacts
-        search-contacts <query>                 - Search contacts by name, phone, email, or address
-        add-birthday <name> <DD.MM.YYYY>        - Add birthday to contact
-        add-address <name> <address>            - Add address to contact
-        add-email <name> <email>                - Add email to contact
-        show-birthday <name>                    - Show contact's birthday
-        birthdays <number of days>              - Show contacts whose birthday is a specified number of days away from the current date
-        edit-fields <name> <field> <new_value>  - Edit named field
-        delete-contact <name>                   - Delete a contact
-
-        --- Note Book Commands ---
-        add-note <title> <content> [tags]       - Add a new note
-        remove-note <title>                     - Remove a note by title
-        show-all-notes                          - Show all notes
-        search-notes <query>                    - Search notes by title or content
-        edit-note <title> [new_title] [new_content] [new_tags] - Edit an existing note
-        search-notes-by-tag <tag>               - Search notes by a specific tag
-        sort-notes-by-tag                       - Sort notes by their tags
-        add-tag-to-note <title> <tag>           - Add a tag to an existing note
-        remove-tag-from-note <title> <tag>      - Remove a tag from an existing note""")
-    return help_text.strip()
-
 @input_error
 def add_note(args: list[str], notebook: NoteBook) -> str:
     """
@@ -417,14 +380,14 @@ def search_notes(args: list[str], notebook: NoteBook) -> str:
     result = notebook.search(query)
 
     if result:
-        message_parts = [f"✅ Found {len(result)} note(s) for note '{query}':"]
+        message_parts = [f"Found {len(result)} note(s) for note '{query}':"]
         for i, note in enumerate(result):
             message_parts.append(
                 f"  {i+1}. Title: {note.title}, Content: {note.content}, Tags: {', '.join(note.tags)}"
             )
         return "\n".join(message_parts)
     else:
-        return f"❌ No notes found matching '{query}'."
+        return f"No notes found matching '{query}'."
 
 @input_error
 def edit_note(args: list[str], notebook: NoteBook) -> str:
@@ -466,14 +429,14 @@ def search_notes_by_tag(args: list[str], notebook: NoteBook) -> str:
     result = notebook.search_by_tag(tag)
 
     if result:
-        message_parts = [f"✅ Found {len(result)} note(s) for tag '{tag}':"]
+        message_parts = [f"Found {len(result)} note(s) for tag '{tag}':"]
         for i, note in enumerate(result):
             message_parts.append(
                 f"  {i+1}. Title: {note.title}, Content: {note.content}, Tags: {', '.join(note.tags)}"
             )
         return "\n".join(message_parts)
     else:
-        return f"❌ No notes found matching for tag '{tag}'."
+        return f"No notes found matching for tag '{tag}'."
 
 @input_error
 def sort_notes_by_tag(args: list[str], notebook: NoteBook) -> list[Note]:
