@@ -21,7 +21,7 @@ def save_addressbook(book: AddressBook, filename: str = "addressbook.pkl", silen
         print(f"Error saving address book: {e}")
 
 
-def load_addressbook(filename: str = "addressbook.pkl") -> AddressBook:
+def load_addressbook(filename: str = "addressbook.pkl", silentmode: bool = False) -> AddressBook:
     """
     Load the address book from a file using pickle deserialization.
     
@@ -35,7 +35,8 @@ def load_addressbook(filename: str = "addressbook.pkl") -> AddressBook:
         if Path(filename).exists():
             with open(filename, "rb") as f:
                 book = pickle.load(f)
-            print(f"Address book loaded from {filename}")
+            if not silentmode:
+                print(f"Address book loaded from {filename}")
             return book
         else:
             print("No saved address book found. Starting with empty address book.")
@@ -63,7 +64,7 @@ def save_notebook(notebook: NoteBook, filename: str = "notebook.pkl", silentmode
         print(f"Error saving notebook: {e}")
 
 
-def load_notebook(filename: str = "notebook.pkl") -> NoteBook:
+def load_notebook(filename: str = "notebook.pkl", silentmode: bool = False) -> NoteBook:
     """
     Load the notebook from a file using pickle deserialization.
 
@@ -77,7 +78,8 @@ def load_notebook(filename: str = "notebook.pkl") -> NoteBook:
         if Path(filename).exists():
             with open(filename, "rb") as f:
                 notebook = pickle.load(f)
-            print(f"Notebook loaded from {filename}")
+            if not silentmode:
+                print(f"Notebook loaded from {filename}")
             return notebook
         else:
             print("No saved notebook found. Starting with empty notebook.")

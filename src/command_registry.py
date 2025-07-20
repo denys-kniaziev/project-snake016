@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Callable, List, Dict
+from ui_formatter import UIFormatter
 from commands import (
     # Address book functions
     add_contact, show_contacts, show_contact, search_contacts, delete_contact,
@@ -350,7 +351,7 @@ class CommandRegistry:
         """
         # Group commands by category, preserving order
         categories = ["General", "Address Book", "Note Book"]
-        help_lines = ["Available commands:"]
+        commands_by_category = {}
         
         for category in categories:
             # Find commands in this category
@@ -358,16 +359,11 @@ class CommandRegistry:
                                if cmd.category == category]
             
             if category_commands:
-                help_lines.append(f"\n--- {category} Commands ---")
-                
                 # Sort commands within category by name
                 category_commands.sort(key=lambda x: x.name)
-                
-                for cmd in category_commands:
-                    # Format: usage (left-aligned, 45 chars) - description
-                    help_lines.append(f"{cmd.usage:<45} - {cmd.description}")
+                commands_by_category[category] = category_commands
         
-        return "\n".join(help_lines)
+        return UIFormatter.format_help_table(commands_by_category)
     
     def is_valid_command(self, name: str) -> bool:
         """

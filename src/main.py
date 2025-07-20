@@ -2,6 +2,7 @@ from commands import parse_input
 from data_persistence import save_addressbook, load_addressbook, save_notebook, load_notebook
 from command_suggester import command_suggester
 from command_registry import registry
+from ui_formatter import UIFormatter, format_command_result
 
 
 def execute_command(command_name: str, args: list, addressbook, notebook) -> tuple[str, bool]:
@@ -70,18 +71,16 @@ def main():
     command execution system.
     """
     # Load data at startup
-    addressbook = load_addressbook()
-    notebook = load_notebook()
-    
-    # Welcome message
-    print("Welcome to the assistant bot!")
-    print("Tip: Use Tab for autocomplete and arrow keys for navigation")
-    print("Type 'help' to see all available commands")
+    addressbook = load_addressbook(silentmode=True)
+    notebook = load_notebook(silentmode=True)
+
+    # Show welcome message with beautiful formatting
+    UIFormatter.print_welcome()
 
     try:
         while True:
             # Get user input with autocomplete support
-            user_input = command_suggester.get_user_input("Enter a command: ")
+            user_input = command_suggester.get_user_input("🔹 Enter a command: ")
             
             # Parse the input into command and arguments
             command, args = parse_input(user_input)
@@ -93,23 +92,24 @@ def main():
             # Execute the command using the registry
             result, should_exit = execute_command(command, args, addressbook, notebook)
             
-            # Print result if there is one
+            # Print result with appropriate formatting if there is one
             if result:
-                print(result)
+                formatted_result = format_command_result(result, "auto")
+                print(formatted_result)
             
             # Exit if requested
             if should_exit:
                 break
     
     except KeyboardInterrupt:
-        print("\nReceived Ctrl+C, exiting...")
+        UIFormatter.print_info("\nReceived Ctrl+C, exiting...")
     
     finally:
         # Save data before exiting
-        print("Saving data...")
-        save_addressbook(addressbook)
-        save_notebook(notebook)
-        print("Good bye!")
+        UIFormatter.print_info("Saving data...")
+        save_addressbook(addressbook, silentmode=True)
+        save_notebook(notebook, silentmode=True)
+        UIFormatter.print_goodbye()
 
 
 if __name__ == "__main__":

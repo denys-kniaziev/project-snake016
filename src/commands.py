@@ -1,5 +1,6 @@
 from address_book import AddressBook, Record
 from note_book import NoteBook, Note
+from ui_formatter import UIFormatter
 
 
 def input_error(func):
@@ -277,14 +278,14 @@ def edit_name(args: list[str], book: AddressBook) -> str:
 @input_error
 def show_contact(args: list[str], book: AddressBook) -> str:
     """
-    Show a specific contact.
+    Show a specific contact with formatted display.
     
     Args:
         args (list[str]): List containing the contact name.
         book (AddressBook): The address book instance.
         
     Returns:
-        str: Contact information or error message.
+        str: Formatted contact information or error message.
     """
     if len(args) < 1:
         raise ValueError("Please provide a contact name. Usage: show-contact <name>")
@@ -294,28 +295,25 @@ def show_contact(args: list[str], book: AddressBook) -> str:
     if record is None:
         raise KeyError(f"Contact '{name}' not found")
     
-    return str(record)
+    return UIFormatter.format_single_contact(record)
 
 @input_error
 def show_contacts(args: list[str], book: AddressBook) -> str:
     """
-    Show all contacts and their information.
+    Show all contacts and their information in a formatted table.
     
     Args:
         args (list[str]): Should be empty.
         book (AddressBook): The address book instance.
         
     Returns:
-        str: Formatted string of all contacts or message if no contacts.
+        str: Formatted table of all contacts or message if no contacts.
     """
     if not book.data:
         return "No contacts saved."
     
-    result = []
-    for record in book.data.values():
-        result.append(str(record))
-    
-    return "\n".join(result)
+    records = list(book.data.values())
+    return UIFormatter.format_contacts_table(records)
 
 @input_error
 def search_contacts(args: list[str], book: AddressBook) -> str:
@@ -355,8 +353,7 @@ def search_contacts(args: list[str], book: AddressBook) -> str:
                 results.append(record)
     
     if results:
-        result_strings = [str(record) for record in results]
-        return f"Found {len(results)} contact(s):\n" + "\n".join(result_strings)
+        return f"Found {len(results)} contact(s):\n" + UIFormatter.format_contacts_table(results)
     else:
         return f"No contacts found matching '{' '.join(args)}'."
 
@@ -410,11 +407,7 @@ def birthdays(args: list[str], book: AddressBook) -> str:
     if not upcoming:
         return f"No upcoming birthdays in the next {number_days} days."
     
-    result = ["Upcoming birthdays:"]
-    for birthday_info in upcoming:
-        result.append(f"{birthday_info['name']}: {birthday_info['congratulation_date']}")
-    
-    return "\n".join(result)
+    return UIFormatter.format_birthdays_table(upcoming)
 
 
 @input_error
