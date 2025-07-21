@@ -1,7 +1,7 @@
 import pickle
 from pathlib import Path
-from .address_book import AddressBook
-from .note_book import NoteBook
+from address_book import AddressBook
+from note_book import NoteBook
 
 
 def save_addressbook(book: AddressBook, filename: str = "addressbook.pkl", silentmode: bool = False) -> None:

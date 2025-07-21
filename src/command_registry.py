@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Callable, List, Dict
-from .ui_formatter import UIFormatter
-from .commands import (
+from ui_formatter import UIFormatter
+from commands import (
     # Address book functions
     add_contact, show_contacts, show_contact, search_contacts, delete_contact,
     edit_phone, add_phone, remove_phone, edit_email, edit_birthday, edit_address, edit_name, birthdays,

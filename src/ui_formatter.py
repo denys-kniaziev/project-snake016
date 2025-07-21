@@ -1,8 +1,8 @@
 from typing import List, Dict
 from colorama import init, Fore, Back, Style
 from prettytable import PrettyTable
-from .address_book import Record
-from .note_book import Note
+from address_book import Record
+from note_book import Note
 
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)

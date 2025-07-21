@@ -14,8 +14,4 @@ dependencies = [
 ]
 
 [project.scripts]
-address-book = "src.main:main"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*"]
+address-book = "main:main"
