@@ -350,11 +350,11 @@ def search_notes_by_tag(args: list[str], notebook: NoteBook) -> str:
 
 
 @input_error
-def sort_notes_by_tag(args: list[str], notebook: NoteBook) -> list[Note]:
+def sort_notes_by_tag(args: list[str], notebook: NoteBook) -> str:
     """Return notes sorted alphabetically by tag."""
     if args:
         raise ValueError("No arguments expected for this command.")
-    return notebook.sort_by_tag()
+    return UIFormatter.format_notes_table(notebook.sort_by_tag())
 
 
 @input_error
