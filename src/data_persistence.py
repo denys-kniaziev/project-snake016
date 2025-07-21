@@ -1,89 +1,106 @@
 import pickle
 from pathlib import Path
-from .address_book import AddressBook
-from .note_book import NoteBook
+from typing import TypeVar, Type, Any
+from address_book import AddressBook
+from note_book import NoteBook
+
+T = TypeVar('T')
+
+
+def _save_object(obj: Any, filename: str, object_type: str, silentmode: bool = False) -> None:
+    """
+    Serialize and save object to file using pickle.
+
+    Args:
+        obj: Object to save
+        filename: Target file name
+        object_type: Label for messages
+        silentmode: Suppress success message if True
+    """
+    try:
+        with open(filename, "wb") as f:
+            pickle.dump(obj, f)
+        if not silentmode:
+            print(f"{object_type} saved to {filename}")
+    except Exception as e:
+        print(f"Error saving {object_type.lower()}: {e}")
+
+
+def _load_object(filename: str, default_factory: Type[T], object_type: str, silentmode: bool = False) -> T:
+    """
+    Load object from pickle file or return default instance.
+
+    Args:
+        filename: File to load from
+        default_factory: Type to create if loading fails
+        object_type: Label for messages
+        silentmode: Suppress success message if True
+
+    Returns:
+        Loaded object or new instance
+    """
+    try:
+        if Path(filename).exists():
+            with open(filename, "rb") as f:
+                obj = pickle.load(f)
+            if not silentmode:
+                print(f"{object_type} loaded from {filename}")
+            return obj
+        else:
+            print(f"No saved {object_type.lower()} found. Starting with empty {object_type.lower()}.")
+            return default_factory()
+    except Exception as e:
+        print(f"Error loading {object_type.lower()}: {e}. Starting with empty {object_type.lower()}.")
+        return default_factory()
 
 
 def save_addressbook(book: AddressBook, filename: str = "addressbook.pkl", silentmode: bool = False) -> None:
     """
-    Save the address book to a file using pickle serialization.
-    
+    Save address book to file.
+
     Args:
-        book (AddressBook): The address book to save
-        filename (str): The filename to save to (default: "addressbook.pkl")
+        book: Address book instance
+        filename: File to save to
+        silentmode: Suppress success message if True
     """
-    try:
-        with open(filename, "wb") as f:
-            pickle.dump(book, f)
-        if not silentmode:
-            print(f"Address book saved to {filename}")
-    except Exception as e:
-        print(f"Error saving address book: {e}")
+    _save_object(book, filename, "Address book", silentmode)
 
 
 def load_addressbook(filename: str = "addressbook.pkl", silentmode: bool = False) -> AddressBook:
     """
-    Load the address book from a file using pickle deserialization.
-    
+    Load address book from file.
+
     Args:
-        filename (str): The filename to load from (default: "addressbook.pkl")
-        
+        filename: File to load from
+        silentmode: Suppress success message if True
+
     Returns:
-        AddressBook: The loaded address book or a new one if file doesn't exist
+        Loaded AddressBook or new instance
     """
-    try:
-        if Path(filename).exists():
-            with open(filename, "rb") as f:
-                book = pickle.load(f)
-            if not silentmode:
-                print(f"Address book loaded from {filename}")
-            return book
-        else:
-            print("No saved address book found. Starting with empty address book.")
-            return AddressBook()
-    except Exception as e:
-        print(f"Error loading address book: {e}. Starting with empty address book.")
-        return AddressBook()
+    return _load_object(filename, AddressBook, "Address book", silentmode)
 
 
 def save_notebook(notebook: NoteBook, filename: str = "notebook.pkl", silentmode: bool = False) -> None:
     """
-    Save the notebook to a file using pickle serialization.
+    Save notebook to file.
 
     Args:
-        notebook (NoteBook): The notebook to save
-        filename (str): The filename to save to (default: "notebook.pkl")
-        silentmode (bool): If True, suppress success messages
+        notebook: NoteBook instance
+        filename: File to save to
+        silentmode: Suppress success message if True
     """
-    try:
-        with open(filename, "wb") as f:
-            pickle.dump(notebook, f)
-        if not silentmode:
-            print(f"Notebook saved to {filename}")
-    except Exception as e:
-        print(f"Error saving notebook: {e}")
+    _save_object(notebook, filename, "Notebook", silentmode)
 
 
 def load_notebook(filename: str = "notebook.pkl", silentmode: bool = False) -> NoteBook:
     """
-    Load the notebook from a file using pickle deserialization.
+    Load notebook from file.
 
     Args:
-        filename (str): The filename to load from (default: "notebook.pkl")
+        filename: File to load from
+        silentmode: Suppress success message if True
 
     Returns:
-        NoteBook: The loaded notebook or a new one if file doesn't exist
+        Loaded NoteBook or new instance
     """
-    try:
-        if Path(filename).exists():
-            with open(filename, "rb") as f:
-                notebook = pickle.load(f)
-            if not silentmode:
-                print(f"Notebook loaded from {filename}")
-            return notebook
-        else:
-            print("No saved notebook found. Starting with empty notebook.")
-            return NoteBook()
-    except Exception as e:
-        print(f"Error loading notebook: {e}. Starting with empty notebook.")
-        return NoteBook()
+    return _load_object(filename, NoteBook, "Notebook", silentmode)

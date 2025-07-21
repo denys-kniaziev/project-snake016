@@ -1,8 +1,8 @@
 from typing import List, Dict
 from colorama import init, Fore, Back, Style
 from prettytable import PrettyTable
-from .address_book import Record
-from .note_book import Note
+from address_book import Record
+from note_book import Note
 
 # Initialize colorama for cross-platform colored output
 init(autoreset=True)
@@ -261,16 +261,7 @@ class UIFormatter:
 
 
 def format_command_result(result: str, command_type: str = "info") -> str:
-    """
-    Format command results with appropriate styling.
-    
-    Args:
-        result: The result message from a command
-        command_type: Type of result (success, error, info, warning)
-    
-    Returns:
-        Formatted result string with colors
-    """
+    """Format command results with appropriate styling."""
     if not result or result.strip() == "":
         return ""
     
