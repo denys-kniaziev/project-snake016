@@ -261,16 +261,7 @@ class UIFormatter:
 
 
 def format_command_result(result: str, command_type: str = "info") -> str:
-    """
-    Format command results with appropriate styling.
-    
-    Args:
-        result: The result message from a command
-        command_type: Type of result (success, error, info, warning)
-    
-    Returns:
-        Formatted result string with colors
-    """
+    """Format command results with appropriate styling."""
     if not result or result.strip() == "":
         return ""
     

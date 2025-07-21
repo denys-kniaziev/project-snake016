@@ -9,13 +9,13 @@ T = TypeVar('T')
 
 def _save_object(obj: Any, filename: str, object_type: str, silentmode: bool = False) -> None:
     """
-    Generic function to save any object to a file using pickle serialization.
-    
+    Serialize and save object to file using pickle.
+
     Args:
-        obj: The object to save
-        filename (str): The filename to save to
-        object_type (str): Type description for messages
-        silentmode (bool): If True, suppress success messages
+        obj: Object to save
+        filename: Target file name
+        object_type: Label for messages
+        silentmode: Suppress success message if True
     """
     try:
         with open(filename, "wb") as f:
@@ -28,16 +28,16 @@ def _save_object(obj: Any, filename: str, object_type: str, silentmode: bool = F
 
 def _load_object(filename: str, default_factory: Type[T], object_type: str, silentmode: bool = False) -> T:
     """
-    Generic function to load any object from a file using pickle deserialization.
-    
+    Load object from pickle file or return default instance.
+
     Args:
-        filename (str): The filename to load from
-        default_factory (Type[T]): Class to instantiate if file doesn't exist or loading fails
-        object_type (str): Type description for messages
-        silentmode (bool): If True, suppress success messages
-        
+        filename: File to load from
+        default_factory: Type to create if loading fails
+        object_type: Label for messages
+        silentmode: Suppress success message if True
+
     Returns:
-        T: The loaded object or a new instance if file doesn't exist
+        Loaded object or new instance
     """
     try:
         if Path(filename).exists():
@@ -56,51 +56,51 @@ def _load_object(filename: str, default_factory: Type[T], object_type: str, sile
 
 def save_addressbook(book: AddressBook, filename: str = "addressbook.pkl", silentmode: bool = False) -> None:
     """
-    Save the address book to a file using pickle serialization.
-    
+    Save address book to file.
+
     Args:
-        book (AddressBook): The address book to save
-        filename (str): The filename to save to (default: "addressbook.pkl")
-        silentmode (bool): If True, suppress success messages
+        book: Address book instance
+        filename: File to save to
+        silentmode: Suppress success message if True
     """
     _save_object(book, filename, "Address book", silentmode)
 
 
 def load_addressbook(filename: str = "addressbook.pkl", silentmode: bool = False) -> AddressBook:
     """
-    Load the address book from a file using pickle deserialization.
-    
+    Load address book from file.
+
     Args:
-        filename (str): The filename to load from (default: "addressbook.pkl")
-        silentmode (bool): If True, suppress success messages
-        
+        filename: File to load from
+        silentmode: Suppress success message if True
+
     Returns:
-        AddressBook: The loaded address book or a new one if file doesn't exist
+        Loaded AddressBook or new instance
     """
     return _load_object(filename, AddressBook, "Address book", silentmode)
 
 
 def save_notebook(notebook: NoteBook, filename: str = "notebook.pkl", silentmode: bool = False) -> None:
     """
-    Save the notebook to a file using pickle serialization.
+    Save notebook to file.
 
     Args:
-        notebook (NoteBook): The notebook to save
-        filename (str): The filename to save to (default: "notebook.pkl")
-        silentmode (bool): If True, suppress success messages
+        notebook: NoteBook instance
+        filename: File to save to
+        silentmode: Suppress success message if True
     """
     _save_object(notebook, filename, "Notebook", silentmode)
 
 
 def load_notebook(filename: str = "notebook.pkl", silentmode: bool = False) -> NoteBook:
     """
-    Load the notebook from a file using pickle deserialization.
+    Load notebook from file.
 
     Args:
-        filename (str): The filename to load from (default: "notebook.pkl")
-        silentmode (bool): If True, suppress success messages
+        filename: File to load from
+        silentmode: Suppress success message if True
 
     Returns:
-        NoteBook: The loaded notebook or a new one if file doesn't exist
+        Loaded NoteBook or new instance
     """
     return _load_object(filename, NoteBook, "Notebook", silentmode)
